@@ -1,0 +1,70 @@
+server:
+  port: 9000
+spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+  sql:
+    init:
+      platform: postgres
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/my_lab_band
+    username: postgres
+    password: 1234
+  security:
+    user:
+      name: admin
+      password: 12345
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+  sql:
+    init:
+      platform: postgres
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/my_lab_band_qa
+    username: postgres
+    password: 1234
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+  sql:
+    init:
+      platform: postgres
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/my_lab_band_prod
+    username: postgres
+    password: 1234
