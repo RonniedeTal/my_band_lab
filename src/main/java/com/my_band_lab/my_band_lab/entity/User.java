@@ -39,6 +39,11 @@ public class User {
     @Column(nullable = false)
     private String name;
 
+    @NotBlank(message = "Please introduce your surname")
+    @Size(min = 3, max = 50, message = "Surname must be between 3 and 50 characters")
+    @Column(nullable = false)
+    private String surname;
+
 //    @Enumerated(EnumType.STRING)
 //    @Column(nullable = false)
 //    private Role role;
