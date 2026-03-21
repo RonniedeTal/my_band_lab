@@ -31,4 +31,26 @@ public class UserController {
         return userService.findUserBySurname(surname);
     }
 
+    @GetMapping("/user/fullname")
+    User findUserByFullName(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String surname,
+            @RequestParam(required = false) String fullName) throws Exception {
+
+        // Si viene fullName, lo dividimos
+        if (fullName != null && !fullName.isEmpty()) {
+            String[] parts = fullName.split(" ");
+            if (parts.length >= 2) {
+                name = parts[0];
+                surname = parts[1];
+            }
+        }
+
+        // Validar que tenemos ambos campos
+        if (name == null || surname == null || name.isEmpty() || surname.isEmpty()) {
+            throw new Exception("Please provide name and surname");
+        }
+
+        return userService.findUserByNameAndSurname(name, surname);
+    }
 }

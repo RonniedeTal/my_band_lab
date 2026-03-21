@@ -44,4 +44,13 @@ public class UserServiceImpl implements UserService{
         }
         return user.get();
     }
+
+    @Override
+    public User findUserByNameAndSurname(String name, String surname) throws Exception {
+        Optional<User> user = userRepository.findByNameIgnoreCaseAndSurnameIgnoreCase(name, surname);
+        if (user.isEmpty()) {
+            throw new Exception("User not found with name: " + name + " and surname: " + surname);
+        }
+        return user.get();
+    }
 }

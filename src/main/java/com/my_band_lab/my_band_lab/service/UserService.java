@@ -10,4 +10,6 @@ public interface UserService {
     User findUserByName(String name) throws Exception;
 
     User findUserBySurname(String surname) throws Exception;
+
+    User findUserByNameAndSurname(String name, String surname) throws Exception;
 }
