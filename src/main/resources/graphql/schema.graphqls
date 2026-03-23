@@ -1,4 +1,4 @@
-# Definicion del tipo User
+# Tipos
 type User {
     id: ID!
     name: String!
@@ -8,47 +8,95 @@ type User {
     profileImageUrl: String
     createdAt: String
     updatedAt: String
+    artist: Artist
+    musicGroups: [MusicGroup!]!
+    ledGroup: MusicGroup
 }
 
-# Consultas (Queries) - Para obtener datos
+# Enum para géneros musicales
+enum MusicGenre {
+    ROCK
+    POP
+    JAZZ
+    CLASSICAL
+    HIP_HOP
+    ELECTRONIC
+    REGGAE
+    BLUES
+    COUNTRY
+    METAL
+    PUNK
+    SOUL
+    FUNK
+    LATIN
+    INDIE
+    ALTERNATIVE
+}
+
+type Artist {
+    id: ID!
+    user: User!
+    stageName: String!
+    biography: String
+    genre: MusicGenre!
+    verified: Boolean!
+    createdAt: String
+    updatedAt: String
+}
+
+type MusicGroup {
+    id: ID!
+    name: String!
+    description: String
+    formedDate: String
+    genre: MusicGenre!
+    members: [User!]!
+#    leader: User!
+#    verified: Boolean!
+#    createdAt: String
+#    updatedAt: String
+}
+
+# Queries
 type Query {
-    # Obtener usuario por ID
+    # User queries
     userById(id: ID!): User
-
-    # Obtener usuario por nombre
     userByName(name: String!): User
-
-    # Obtener usuario por apellido
     userBySurname(surname: String!): User
-
-    # Obtener usuario por nombre y apellido
     userByNameAndSurname(name: String!, surname: String!): User
-
-    # Obtener todos los usuarios (opcional)
     users: [User!]!
+
+    # Artist queries
+    artists: [Artist!]!
+    artistById(id: ID!): Artist
+    artistByUserId(userId: ID!): Artist
+    artistsByGenre(genre: MusicGenre!): [Artist!]!
+
+    # MusicGroup queries
+    musicGroups: [MusicGroup!]!
+    musicGroupById(id: ID!): MusicGroup
+    musicGroupsByGenre(genre: MusicGenre!): [MusicGroup!]!
+
+    # Genre queries
+    availableGenres: [MusicGenre!]!
 }
 
-# Mutaciones (Mutations) - Para modificar datos
+# Mutations
 type Mutation {
-    # Crear nuevo usuario
-    createUser(
-        name: String!
-        surname: String!
-        email: String!
-        password: String!
-        profileImageUrl: String
-    ): User!
-
-    # Actualizar usuario existente
-    updateUser(
-        id: ID!
-        name: String
-        surname: String
-        email: String
-        password: String
-        profileImageUrl: String
-    ): User!
-
-    # Eliminar usuario
+    # User mutations
+    createUser(name: String!, surname: String!, email: String!, password: String!, profileImageUrl: String): User!
+    updateUser(id: ID!, name: String, surname: String, email: String, password: String, profileImageUrl: String): User!
     deleteUser(id: ID!): Boolean!
+
+    # Artist mutations
+    createArtist(userId: ID!, stageName: String!, biography: String, genre: MusicGenre!): Artist!
+    updateArtist(id: ID!, stageName: String, biography: String, genre: MusicGenre): Artist!
+    deleteArtist(id: ID!): Boolean!
+
+    # MusicGroup mutations
+    createMusicGroup(name: String!, description: String, genre: MusicGenre!): MusicGroup!
+    addMemberToGroup(groupId: ID!, userId: ID!): MusicGroup!
+    removeMemberFromGroup(groupId: ID!, userId: ID!): MusicGroup!
+    updateMusicGroupGenre(groupId: ID!, genre: MusicGenre!): MusicGroup!
+    deleteMusicGroup(id: ID!): Boolean!
 }
