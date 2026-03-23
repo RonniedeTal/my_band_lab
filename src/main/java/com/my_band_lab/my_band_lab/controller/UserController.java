@@ -2,7 +2,6 @@ package com.my_band_lab.my_band_lab.controller;
 
 
 import com.my_band_lab.my_band_lab.entity.User;
-import com.my_band_lab.my_band_lab.repository.UserRepository;
 import com.my_band_lab.my_band_lab.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,5 +51,22 @@ public class UserController {
         }
 
         return userService.findUserByNameAndSurname(name, surname);
+    }
+
+
+    @PutMapping("/user/update/{id}")
+    User updateUser(@Valid @RequestBody User user, @PathVariable Long id) throws Exception {
+        return userService.updateUser(id, user);
+    }
+
+    @PatchMapping("/user/update/{id}")
+    User patchUser(@Valid @RequestBody User user, @PathVariable Long id) throws Exception {
+        return userService.updateUser(id, user);
+    }
+
+    @DeleteMapping("/user/delete/{id}")
+    String deleteUser(@PathVariable Long id) throws Exception {
+        userService.deleteUser(id);
+        return "User with id " + id + " deleted. " ;
     }
 }

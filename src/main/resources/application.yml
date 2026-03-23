@@ -1,25 +1,31 @@
 server:
   port: 9000
+
 spring:
   profiles:
     active: dev
+  graphql:
+    graphiql:
+      enabled: true
+    schema:
+      locations: classpath:graphql/
 
 ---
 spring:
   config:
     activate:
       on-profile: dev
+  graphql:
+    graphiql:
+      enabled: true
   jpa:
     database: POSTGRESQL
     show-sql: true
-    generate-ddl: true
     hibernate:
       ddl-auto: update
-
-  sql:
-    init:
-      platform: postgres
-
+    properties:
+      hibernate:
+        format_sql: true
   datasource:
     url: jdbc:postgresql://localhost:5432/my_lab_band
     username: postgres
@@ -28,42 +34,38 @@ spring:
     user:
       name: admin
       password: 12345
+
 ---
 spring:
   config:
     activate:
       on-profile: qa
+  graphql:
+    graphiql:
+      enabled: true
   jpa:
     database: POSTGRESQL
     show-sql: true
-    generate-ddl: true
     hibernate:
       ddl-auto: update
-
-  sql:
-    init:
-      platform: postgres
-
   datasource:
     url: jdbc:postgresql://localhost:5432/my_lab_band_qa
     username: postgres
     password: 1234
+
 ---
 spring:
   config:
     activate:
       on-profile: prod
+  graphql:
+    graphiql:
+      enabled: false
   jpa:
     database: POSTGRESQL
-    show-sql: true
-    generate-ddl: true
+    show-sql: false
     hibernate:
-      ddl-auto: update
-
-  sql:
-    init:
-      platform: postgres
-
+      ddl-auto: validate
   datasource:
     url: jdbc:postgresql://localhost:5432/my_lab_band_prod
     username: postgres

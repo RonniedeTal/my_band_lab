@@ -1,0 +1,54 @@
+# Definicion del tipo User
+type User {
+    id: ID!
+    name: String!
+    surname: String!
+    email: String!
+    password: String!
+    profileImageUrl: String
+    createdAt: String
+    updatedAt: String
+}
+
+# Consultas (Queries) - Para obtener datos
+type Query {
+    # Obtener usuario por ID
+    userById(id: ID!): User
+
+    # Obtener usuario por nombre
+    userByName(name: String!): User
+
+    # Obtener usuario por apellido
+    userBySurname(surname: String!): User
+
+    # Obtener usuario por nombre y apellido
+    userByNameAndSurname(name: String!, surname: String!): User
+
+    # Obtener todos los usuarios (opcional)
+    users: [User!]!
+}
+
+# Mutaciones (Mutations) - Para modificar datos
+type Mutation {
+    # Crear nuevo usuario
+    createUser(
+        name: String!
+        surname: String!
+        email: String!
+        password: String!
+        profileImageUrl: String
+    ): User!
+
+    # Actualizar usuario existente
+    updateUser(
+        id: ID!
+        name: String
+        surname: String
+        email: String
+        password: String
+        profileImageUrl: String
+    ): User!
+
+    # Eliminar usuario
+    deleteUser(id: ID!): Boolean!
+}
