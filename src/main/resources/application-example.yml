@@ -1,0 +1,35 @@
+# Plantilla de configuración
+# Copiar a application-dev.yml y completar con tus credenciales
+# NO subir application-dev.yml a GitHub
+
+server:
+  port: 9000
+
+spring:
+  profiles:
+    active: dev
+  graphql:
+    graphiql:
+      enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  graphql:
+    graphiql:
+      enabled: true
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:5432/your_data_base
+    username: your_user
+    password: your_password
+  security:
+    user:
+      name: admin
+      password: your_admin_password

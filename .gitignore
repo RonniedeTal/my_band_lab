@@ -31,3 +31,27 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### ARCHIVOS DE CONFIGURACIÓN CON CREDENCIALES ###
+# No subir archivos de configuración con credenciales
+application-dev.yml
+application-prod.yml
+application-secret.yml
+application-local.yml
+config/application-*.yml
+!application-example.yml
+!application-template.yml
+
+### LOGS ###
+*.log
+logs/
+
+### BASE DE DATOS LOCAL ###
+*.db
+*.sqlite
+
+### ARCHIVOS DEL SISTEMA ###
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

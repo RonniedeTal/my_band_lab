@@ -152,8 +152,8 @@ public class UserGraphQLController {
     // MusicGroup Mutations
     @MutationMapping
     public MusicGroup createMusicGroup(@Argument String name, @Argument String description,
-                                       @Argument MusicGenre genre, @Argument Long leaderId) throws Exception {
-        return musicGroupService.createGroup(name, description, genre, leaderId);
+                                       @Argument MusicGenre genre, @Argument Long founderId) throws Exception {
+        return musicGroupService.createGroup(name, description, genre, founderId);
     }
 
     @MutationMapping

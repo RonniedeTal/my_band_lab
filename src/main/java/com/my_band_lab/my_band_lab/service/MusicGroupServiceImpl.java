@@ -23,23 +23,26 @@ public class MusicGroupServiceImpl implements MusicGroupService {
 
     @Override
     @Transactional
-    public MusicGroup createGroup(String name, String description, MusicGenre genre, Long leaderId) throws Exception {
+    public MusicGroup createGroup(String name, String description, MusicGenre genre, Long founderId) throws Exception {
         // Verificar si ya existe un grupo con ese nombre
         if (musicGroupRepository.findByNameIgnoreCase(name).isPresent()) {
             throw new Exception("Group name already exists");
         }
 
-        User leader = userRepository.findById(leaderId)
-                .orElseThrow(() -> new Exception("Leader user not found"));
+        User founder = userRepository.findById(founderId)
+                .orElseThrow(() -> new Exception("Founder user not found"));
 
         MusicGroup group = MusicGroup.builder()
                 .name(name)
                 .description(description)
                 .genre(genre)
+                .founder(founder)  // Cambiado leader a founder
+                .verified(false)
+
                 .build();
 
         // Añadir al líder como miembro
-        group.getMembers().add(leader);
+        group.getMembers().add(founder);
 
         return musicGroupRepository.save(group);
     }
@@ -74,10 +77,10 @@ public class MusicGroupServiceImpl implements MusicGroupService {
             throw new Exception("User is not a member of this group");
         }
 
-        // No permitir remover al líder
-//        if (group.getLeader().getId().equals(userId)) {
-//            throw new Exception("Cannot remove the group leader");
-//        }
+        // No permitir remover al fundador
+        if (group.getFounder().getId().equals(userId)) {  // Cambiado leader a founder
+            throw new Exception("Cannot remove the group founder");
+        }
 
         group.getMembers().remove(user);
         return musicGroupRepository.save(group);

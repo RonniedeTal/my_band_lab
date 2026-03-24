@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -56,6 +58,16 @@ public class User {
 
     @Column (name = "profile_image_url")
     private String profileImageUrl;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Artist artist;
+
+    @ManyToMany(mappedBy = "members")
+    @Builder.Default
+    private List<MusicGroup> musicGroups = new ArrayList<>();
+
+    @OneToOne(mappedBy = "founder")  // Cambiado de leader a founder
+    private MusicGroup foundedGroup;  // Cambiado de ledGroup a foundedGroup
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @Builder.Default
