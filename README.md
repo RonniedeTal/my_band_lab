@@ -1,10 +1,20 @@
 # 🎵 My Band Lab
-
+[![Taiga](https://img.shields.io/badge/Taiga-Project-2E86AB?style=flat-square&logo=taiga&logoColor=white)](https://tree.taiga.io/project/ronniedetal-my-band-lab)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![GraphQL](https://img.shields.io/badge/GraphQL-2.0.2-pink.svg)](https://graphql.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17.6-blue.svg)](https://www.postgresql.org/)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+## 📊 Project Management
+
+Development is tracked on **Taiga**:
+
+- 📋 [Backlog](https://tree.taiga.io/project/ronniedetal-my-band-lab/backlog) – Prioritized user stories
+- 🗂️ [Kanban](https://tree.taiga.io/project/ronniedetal-my-band-lab/kanban) – Work in progress board
+- 🏷️ [Epics](https://tree.taiga.io/project/ronniedetal-my-band-lab/epics) – Major features
+- 📚 [Wiki](https://tree.taiga.io/project/ronniedetal-my-band-lab/wiki) – Complete documentation
+- 🐞 [Issues](https://tree.taiga.io/project/ronniedetal-my-band-lab/issues) – Bugs and tasks
 
 ## 📋 Description
 
