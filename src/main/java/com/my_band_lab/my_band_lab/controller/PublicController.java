@@ -30,4 +30,14 @@ public class PublicController {
     public Artist getArtistById(@PathVariable Long id) throws Exception {
         return artistService.getArtistById(id);
     }
+
+    @GetMapping("/groups")
+    public List<MusicGroup> getAllGroups() throws Exception {
+        return musicGroupService.getAllGroups();
+    }
+
+    @GetMapping("/groups/{id}")
+    public MusicGroup getGroupById(@PathVariable Long id) throws Exception {
+        return musicGroupService.getGroupById(id);
+    }
 }

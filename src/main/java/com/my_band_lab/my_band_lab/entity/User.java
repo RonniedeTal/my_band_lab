@@ -65,10 +65,12 @@ public class User {
     private Artist artist;
 
     @ManyToMany(mappedBy = "members")
+    @JsonIgnore
     @Builder.Default
     private List<MusicGroup> musicGroups = new ArrayList<>();
 
     @OneToOne(mappedBy = "founder")  // Cambiado de leader a founder
+    @JsonIgnore
     private MusicGroup foundedGroup;  // Cambiado de ledGroup a foundedGroup
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
