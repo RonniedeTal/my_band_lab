@@ -1,5 +1,6 @@
 package com.my_band_lab.my_band_lab.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -60,6 +61,7 @@ public class User {
     private String profileImageUrl;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Artist artist;
 
     @ManyToMany(mappedBy = "members")

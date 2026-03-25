@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class Artist {
 
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
+    @JsonIgnore
     private User user;
 
     private String stageName;

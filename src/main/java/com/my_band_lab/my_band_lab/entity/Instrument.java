@@ -1,5 +1,6 @@
 package com.my_band_lab.my_band_lab.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,5 +30,6 @@ public class Instrument {
     private String icon;
 
     @ManyToMany(mappedBy = "instruments")
+    @JsonIgnore
     private List<Artist> artists = new ArrayList<>();
 }
