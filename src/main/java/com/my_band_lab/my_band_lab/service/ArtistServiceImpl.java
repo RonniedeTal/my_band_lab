@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.service;
 
 import com.my_band_lab.my_band_lab.dto.CreateArtistRequest;
+import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.Instrument;
 import com.my_band_lab.my_band_lab.entity.MusicGenre;
@@ -9,6 +10,9 @@ import com.my_band_lab.my_band_lab.repository.ArtistRepository;
 import com.my_band_lab.my_band_lab.repository.InstrumentRepository;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -169,5 +173,21 @@ public class ArtistServiceImpl implements ArtistService {
 
         // Devolver lista vacía si no hay resultados (nunca null)
         return artists != null ? artists : new ArrayList<>();
+    }
+
+    @Override
+    public PageResponse<Artist> getAllArtistsPaginated(int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Artist> artistPage = artistRepository.findAll(pageable);
+
+        return PageResponse.<Artist>builder()
+                .content(artistPage.getContent())
+                .totalElements(artistPage.getTotalElements())
+                .totalPages(artistPage.getTotalPages())
+                .currentPage(artistPage.getNumber())
+                .size(artistPage.getSize())
+                .hasNext(artistPage.hasNext())
+                .hasPrevious(artistPage.hasPrevious())
+                .build();
     }
 }

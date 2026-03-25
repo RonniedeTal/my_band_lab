@@ -17,8 +17,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**", "/auth/**").permitAll()
-                        .requestMatchers("/**").denyAll()
+                        // Endpoints públicos
+                        .requestMatchers("/api/public/**").permitAll()  // ← Esto ya cubre /api/public/artists/paginated
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().denyAll()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());

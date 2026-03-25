@@ -1,11 +1,15 @@
 package com.my_band_lab.my_band_lab.service;
 
+import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.MusicGenre;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.repository.MusicGroupRepository;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -129,5 +133,20 @@ public class MusicGroupServiceImpl implements MusicGroupService {
     public void deleteGroup(Long groupId) throws Exception {
         MusicGroup group = getGroupById(groupId);
         musicGroupRepository.delete(group);
+    }
+    @Override
+    public PageResponse<MusicGroup> getAllGroupsPaginated(int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MusicGroup> groupPage = musicGroupRepository.findAll(pageable);
+
+        return PageResponse.<MusicGroup>builder()
+                .content(groupPage.getContent())
+                .totalElements(groupPage.getTotalElements())
+                .totalPages(groupPage.getTotalPages())
+                .currentPage(groupPage.getNumber())
+                .size(groupPage.getSize())
+                .hasNext(groupPage.hasNext())
+                .hasPrevious(groupPage.hasPrevious())
+                .build();
     }
 }
