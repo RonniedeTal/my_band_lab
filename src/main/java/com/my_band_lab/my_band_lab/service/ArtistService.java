@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.service;
 
 import com.my_band_lab.my_band_lab.dto.CreateArtistRequest;
+import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.Instrument;
 import com.my_band_lab.my_band_lab.entity.MusicGenre;
@@ -30,4 +31,6 @@ public interface ArtistService {
     List<Instrument> getArtistInstruments(Long artistId) throws Exception;
 
     List<Artist> getArtistsByInstrument(Long instrumentId) throws Exception;
+
+    PageResponse<Artist> getAllArtistsPaginated(int page, int size) throws Exception;
 }

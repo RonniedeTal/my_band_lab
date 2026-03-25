@@ -1,5 +1,6 @@
 package com.my_band_lab.my_band_lab.service;
 
+import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.MusicGenre;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.entity.User;
@@ -16,4 +17,5 @@ public interface MusicGroupService {
     List<MusicGroup> getAllGroups() throws Exception;
     MusicGroup getGroupById(Long id) throws Exception;
     void deleteGroup(Long groupId) throws Exception;
+    PageResponse<MusicGroup> getAllGroupsPaginated(int page, int size) throws Exception;
 }

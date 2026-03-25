@@ -1,5 +1,6 @@
 package com.my_band_lab.my_band_lab.controller;
 
+import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.service.ArtistService;
@@ -31,6 +32,13 @@ public class PublicController {
         return artistService.getArtistById(id);
     }
 
+    @GetMapping("/artists/paginated")
+    public PageResponse<Artist> getArtistsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws Exception {
+        return artistService.getAllArtistsPaginated(page, size);
+    }
+
     @GetMapping("/groups")
     public List<MusicGroup> getAllGroups() throws Exception {
         return musicGroupService.getAllGroups();
@@ -39,5 +47,13 @@ public class PublicController {
     @GetMapping("/groups/{id}")
     public MusicGroup getGroupById(@PathVariable Long id) throws Exception {
         return musicGroupService.getGroupById(id);
+    }
+
+    //Grupos con paginación
+    @GetMapping("/groups/paginated")
+    public PageResponse<MusicGroup> getGroupsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws Exception {
+        return musicGroupService.getAllGroupsPaginated(page, size);
     }
 }
