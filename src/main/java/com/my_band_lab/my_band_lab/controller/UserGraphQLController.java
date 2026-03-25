@@ -1,5 +1,6 @@
 package com.my_band_lab.my_band_lab.controller;
 
+import com.my_band_lab.my_band_lab.dto.CreateArtistRequest;
 import com.my_band_lab.my_band_lab.entity.*;
 import com.my_band_lab.my_band_lab.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -132,9 +134,23 @@ public class UserGraphQLController {
 
     // Artist Mutations
     @MutationMapping
-    public Artist createArtist(@Argument Long userId, @Argument String stageName,
-                               @Argument String biography, @Argument MusicGenre genre) throws Exception {
-        return artistService.createArtist(userId, stageName, biography, genre);
+    public Artist createArtist(
+            @Argument Long userId,
+            @Argument String stageName,
+            @Argument String biography,
+            @Argument MusicGenre genre,
+            @Argument List<Long> instrumentIds,
+            @Argument Long mainInstrumentId) throws Exception {
+
+        CreateArtistRequest request = new CreateArtistRequest();
+        request.setUserId(userId);
+        request.setStageName(stageName);
+        request.setBiography(biography);
+        request.setGenre(genre);
+        request.setInstrumentIds(instrumentIds);
+        request.setMainInstrumentId(mainInstrumentId);
+
+        return artistService.createArtist(request);
     }
 
     @MutationMapping
@@ -175,5 +191,30 @@ public class UserGraphQLController {
     public Boolean deleteMusicGroup(@Argument Long id) throws Exception {
         musicGroupService.deleteGroup(id);
         return true;
+    }
+    // ==================== QUERIES PARA INSTRUMENTOS ====================
+
+    @Autowired
+    private InstrumentService instrumentService;
+
+    @QueryMapping
+    public List<Instrument> instruments() throws Exception {
+        return instrumentService.getAllInstruments();
+    }
+
+    @QueryMapping
+    public List<Instrument> instrumentsByCategory(@Argument String category) throws Exception {
+        return instrumentService.getInstrumentsByCategory(category);
+    }
+
+    @QueryMapping
+    public List<Artist> artistsByInstrument(@Argument Long instrumentId) throws Exception {
+        List<Artist> artists = artistService.getArtistsByInstrument(instrumentId);
+        return artists != null ? artists : new ArrayList<>();
+    }
+
+    @QueryMapping
+    public List<Instrument> artistInstruments(@Argument Long artistId) throws Exception {
+        return artistService.getArtistInstruments(artistId);
     }
 }

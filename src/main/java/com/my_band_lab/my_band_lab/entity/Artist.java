@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "artists")
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 public class Artist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
@@ -34,6 +36,18 @@ public class Artist {
     private MusicGenre genre;
 
     private boolean verified;
+
+    @ManyToMany
+    @JoinTable(
+            name = "artist_instrument",
+            joinColumns = @JoinColumn(name = "artist_id"),
+            inverseJoinColumns = @JoinColumn(name = "instrument_id")
+    )
+    @Builder.Default
+    private List<Instrument> instruments = new ArrayList<>();
+
+    @Column(name = "main_instrument_id")
+    private Long mainInstrumentId; // Instrumento principal (opcional)
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

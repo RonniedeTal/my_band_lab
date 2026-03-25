@@ -33,12 +33,22 @@ enum MusicGenre {
     ALTERNATIVE
 }
 
+# Tipo Instrument
+type Instrument {
+    id: ID!
+    name: String!
+    category: String!
+    icon: String
+}
+
 type Artist {
     id: ID!
     user: User!
     stageName: String!
     biography: String
     genre: MusicGenre!
+    instruments: [Instrument!]!
+    mainInstrument: Instrument
     verified: Boolean!
     createdAt: String
     updatedAt: String
@@ -79,6 +89,12 @@ type Query {
 
     # Genre queries
     availableGenres: [MusicGenre!]!
+
+    # Instrument queries
+    instruments: [Instrument!]!
+    instrumentsByCategory(category: String!): [Instrument!]!
+    artistInstruments(artistId: ID!): [Instrument!]!
+    artistsByInstrument(instrumentId: ID!): [Artist!]!
 }
 
 # Mutations
@@ -88,8 +104,16 @@ type Mutation {
     updateUser(id: ID!, name: String, surname: String, email: String, password: String, profileImageUrl: String): User!
     deleteUser(id: ID!): Boolean!
 
-    # Artist mutations
-    createArtist(userId: ID!, stageName: String!, biography: String, genre: MusicGenre!): Artist!
+    # Artist mutations (MODIFICADO)
+    createArtist(
+        userId: ID!
+        stageName: String!
+        biography: String
+        genre: MusicGenre!
+        instrumentIds: [ID!]!
+        mainInstrumentId: ID
+    ): Artist!
+
     updateArtist(id: ID!, stageName: String, biography: String, genre: MusicGenre): Artist!
     deleteArtist(id: ID!): Boolean!
 
@@ -99,4 +123,11 @@ type Mutation {
     removeMemberFromGroup(groupId: ID!, userId: ID!): MusicGroup!
     updateMusicGroupGenre(groupId: ID!, genre: MusicGenre!): MusicGroup!
     deleteMusicGroup(id: ID!): Boolean!
+
+    # Instrument mutations
+    updateArtistInstruments(
+        artistId: ID!
+        instrumentIds: [ID!]!
+        mainInstrumentId: ID
+    ): Artist!
 }
