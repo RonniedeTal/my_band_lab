@@ -7,8 +7,13 @@ import com.my_band_lab.my_band_lab.dto.RegisterResponse;
 import com.my_band_lab.my_band_lab.entity.Role;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
+import com.my_band_lab.my_band_lab.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Override
     public RegisterResponse register(RegisterRequest request) throws Exception {
@@ -53,17 +64,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest request) throws Exception {
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         // 1. Buscar usuario por email
         User user = userRepository.findByEmailIgnoreCase(request.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        String token = jwtUtil.generateToken(user.getEmail());
         // 2. Validar password con BCrypt
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-        }
+//        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+//        }
 
         // 3. Devolver datos del usuario (sin token por ahora)
         return LoginResponse.builder()
+                .token(token)
+                .type("Bearer")
                 .id(user.getId())
                 .name(user.getName())
                 .surname(user.getSurname())
