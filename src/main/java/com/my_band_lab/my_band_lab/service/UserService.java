@@ -1,5 +1,6 @@
 package com.my_band_lab.my_band_lab.service;
 
+import com.my_band_lab.my_band_lab.dto.UpdateProfileRequest;
 import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
 import com.my_band_lab.my_band_lab.entity.User;
 import jakarta.validation.Valid;
@@ -27,4 +28,6 @@ public interface UserService {
     User getCurrentUser() throws Exception;
 
     UserProfileResponse getCurrentUserProfile() throws Exception;
+
+    UserProfileResponse updateCurrentUserProfile(UpdateProfileRequest request) throws Exception;
 }

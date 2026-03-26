@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.my_band_lab.my_band_lab.dto.UpdateProfileRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -131,6 +132,34 @@ public class UserServiceImpl implements UserService{
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    @Override
+    public UserProfileResponse updateCurrentUserProfile(UpdateProfileRequest request) throws Exception {
+        User user = getCurrentUser();
+
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            user.setName(request.getName());
+        }
+
+        if (request.getSurname() != null && !request.getSurname().isEmpty()) {
+            user.setSurname(request.getSurname());
+        }
+
+        if (request.getProfileImageUrl() != null) {
+            user.setProfileImageUrl(request.getProfileImageUrl());
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return UserProfileResponse.builder()
+                .id(updatedUser.getId())
+                .name(updatedUser.getName())
+                .surname(updatedUser.getSurname())
+                .email(updatedUser.getEmail())
+                .role(updatedUser.getRole().name())
+                .createdAt(updatedUser.getCreatedAt())
                 .build();
     }
 
