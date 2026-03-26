@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.controller;
 
 
+import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.service.UserService;
 import jakarta.validation.Valid;
@@ -68,5 +69,9 @@ public class UserController {
     String deleteUser(@PathVariable Long id) throws Exception {
         userService.deleteUser(id);
         return "User with id " + id + " deleted. " ;
+    }
+    @GetMapping("/api/me")
+    public UserProfileResponse getCurrentUserProfile() throws Exception {
+        return userService.getCurrentUserProfile();
     }
 }
