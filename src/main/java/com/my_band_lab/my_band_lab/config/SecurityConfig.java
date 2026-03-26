@@ -31,3 +31,16 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
+//configuracion futura
+//.authorizeHttpRequests(auth -> auth
+//        // Públicos
+//        .requestMatchers("/api/public/**").permitAll()
+//    .requestMatchers("/auth/**").permitAll()
+//
+//// GraphQL protegido
+//    .requestMatchers("/graphql").authenticated()
+//
+//// Resto denegado
+//    .anyRequest().denyAll()
+//)
