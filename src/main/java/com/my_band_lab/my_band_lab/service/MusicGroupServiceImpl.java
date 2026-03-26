@@ -149,4 +149,19 @@ public class MusicGroupServiceImpl implements MusicGroupService {
                 .hasPrevious(groupPage.hasPrevious())
                 .build();
     }
+    @Override
+    public PageResponse<MusicGroup> searchGroups(String query, int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MusicGroup> groupPage = musicGroupRepository.searchByNameOrDescription(query, pageable);
+
+        return PageResponse.<MusicGroup>builder()
+                .content(groupPage.getContent())
+                .totalElements(groupPage.getTotalElements())
+                .totalPages(groupPage.getTotalPages())
+                .currentPage(groupPage.getNumber())
+                .size(groupPage.getSize())
+                .hasNext(groupPage.hasNext())
+                .hasPrevious(groupPage.hasPrevious())
+                .build();
+    }
 }

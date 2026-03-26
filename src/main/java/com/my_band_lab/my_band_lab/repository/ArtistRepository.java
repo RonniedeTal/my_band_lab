@@ -2,6 +2,8 @@ package com.my_band_lab.my_band_lab.repository;
 
 import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.MusicGenre;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +20,7 @@ public interface ArtistRepository extends JpaRepository<Artist, Long> {
 
     @Query("SELECT a FROM Artist a JOIN a.instruments i WHERE i.id = :instrumentId")
     List<Artist> findByInstrumentId(@Param("instrumentId") Long instrumentId);
+
+    @Query("SELECT a FROM Artist a WHERE LOWER(a.stageName) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(a.user.name) LIKE LOWER(CONCAT('%', :query, '%'))")
+    Page<Artist> searchByNameOrStageName(@Param("query") String query, Pageable pageable);
 }

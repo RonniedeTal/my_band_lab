@@ -234,4 +234,21 @@ public class UserGraphQLController {
             @Argument int size) throws Exception {
         return musicGroupService.getAllGroupsPaginated(page, size);
     }
+    // ==================== QUERIES DE BÚSQUEDA ====================
+
+    @QueryMapping
+    public PageResponse<Artist> searchArtists(
+            @Argument String query,
+            @Argument int page,
+            @Argument int size) throws Exception {
+        return artistService.searchArtists(query, page, size);
+    }
+
+    @QueryMapping
+    public PageResponse<MusicGroup> searchGroups(
+            @Argument String query,
+            @Argument int page,
+            @Argument int size) throws Exception {
+        return musicGroupService.searchGroups(query, page, size);
+    }
 }
