@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.controller;
 
 import com.my_band_lab.my_band_lab.dto.CreateArtistRequest;
+import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.*;
 import com.my_band_lab.my_band_lab.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -216,5 +217,21 @@ public class UserGraphQLController {
     @QueryMapping
     public List<Instrument> artistInstruments(@Argument Long artistId) throws Exception {
         return artistService.getArtistInstruments(artistId);
+    }
+
+    // ==================== QUERIES CON PAGINACIÓN ====================
+
+    @QueryMapping
+    public PageResponse<Artist> artistsPaginated(
+            @Argument int page,
+            @Argument int size) throws Exception {
+        return artistService.getAllArtistsPaginated(page, size);
+    }
+
+    @QueryMapping
+    public PageResponse<MusicGroup> musicGroupsPaginated(
+            @Argument int page,
+            @Argument int size) throws Exception {
+        return musicGroupService.getAllGroupsPaginated(page, size);
     }
 }

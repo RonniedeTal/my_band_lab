@@ -95,6 +95,10 @@ type Query {
     instrumentsByCategory(category: String!): [Instrument!]!
     artistInstruments(artistId: ID!): [Instrument!]!
     artistsByInstrument(instrumentId: ID!): [Artist!]!
+
+    # Paginación - NUEVAS QUERIES
+    artistsPaginated(page: Int = 0, size: Int = 10): ArtistPageResponse!
+    musicGroupsPaginated(page: Int = 0, size: Int = 10): MusicGroupPageResponse!
 }
 
 # Mutations
@@ -130,4 +134,28 @@ type Mutation {
         instrumentIds: [ID!]!
         mainInstrumentId: ID
     ): Artist!
+
+
+}
+
+# Tipo para respuestas paginadas de artistas
+type ArtistPageResponse {
+    content: [Artist!]!
+    totalElements: Int!
+    totalPages: Int!
+    currentPage: Int!
+    size: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+}
+
+# Tipo para respuestas paginadas de grupos
+type MusicGroupPageResponse {
+    content: [MusicGroup!]!
+    totalElements: Int!
+    totalPages: Int!
+    currentPage: Int!
+    size: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
 }
