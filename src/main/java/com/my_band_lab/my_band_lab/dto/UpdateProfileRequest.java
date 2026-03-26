@@ -13,4 +13,6 @@ public class UpdateProfileRequest {
     private String surname;
 
     private String profileImageUrl;
+
+    // Email no está incluido intencionalmente - no se puede actualizar
 }
