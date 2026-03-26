@@ -19,6 +19,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos
                         .requestMatchers("/api/public/**").permitAll()  // ← Esto ya cubre /api/public/artists/paginated
+                        .requestMatchers("/graphql").permitAll()      // ← AÑADIR ESTA LÍNEA
+                        .requestMatchers("/graphiql").permitAll()     // ← Opcional: para interfaz gráfica
+
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().denyAll()
                 )
