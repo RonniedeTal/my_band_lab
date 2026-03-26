@@ -1,9 +1,12 @@
 package com.my_band_lab.my_band_lab.service;
 
+import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +105,33 @@ public class UserServiceImpl implements UserService{
             throw new Exception("No users found");
         }
         return users;
+    }
+
+    @Override
+    public User getCurrentUser() throws Exception {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            String email = ((UserDetails) principal).getUsername();
+            return userRepository.findByEmailIgnoreCase(email)
+                    .orElseThrow(() -> new Exception("User not found"));
+        }
+
+        throw new Exception("User not authenticated");
+    }
+
+    @Override
+    public UserProfileResponse getCurrentUserProfile() throws Exception {
+        User user = getCurrentUser();
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
 }
