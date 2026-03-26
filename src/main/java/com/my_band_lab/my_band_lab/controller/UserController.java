@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.controller;
 
 
+import com.my_band_lab.my_band_lab.dto.UpdateProfileRequest;
 import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.service.UserService;
@@ -73,5 +74,10 @@ public class UserController {
     @GetMapping("/api/me")
     public UserProfileResponse getCurrentUserProfile() throws Exception {
         return userService.getCurrentUserProfile();
+    }
+
+    @PutMapping("/api/me")
+    public UserProfileResponse updateCurrentUserProfile(@Valid @RequestBody UpdateProfileRequest request) throws Exception {
+        return userService.updateCurrentUserProfile(request);
     }
 }
