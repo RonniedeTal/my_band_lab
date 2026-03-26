@@ -1,5 +1,7 @@
 package com.my_band_lab.my_band_lab.controller;
 
+import com.my_band_lab.my_band_lab.dto.LoginRequest;
+import com.my_band_lab.my_band_lab.dto.LoginResponse;
 import com.my_band_lab.my_band_lab.dto.RegisterRequest;
 import com.my_band_lab.my_band_lab.dto.RegisterResponse;
 import com.my_band_lab.my_band_lab.service.AuthService;
@@ -25,11 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> request) {
-        // Endpoint temporal - solo estructura
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Login endpoint created");
-        response.put("email", request.get("email"));
-        return response;
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) throws Exception {
+        return authService.login(request);
     }
 }
