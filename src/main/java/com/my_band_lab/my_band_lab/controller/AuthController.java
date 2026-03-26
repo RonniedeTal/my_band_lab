@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -19,5 +22,14 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse register(@Valid @RequestBody RegisterRequest request) throws Exception {
         return authService.register(request);
+    }
+
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody Map<String, String> request) {
+        // Endpoint temporal - solo estructura
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Login endpoint created");
+        response.put("email", request.get("email"));
+        return response;
     }
 }
