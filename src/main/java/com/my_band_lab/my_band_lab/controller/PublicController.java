@@ -56,4 +56,21 @@ public class PublicController {
             @RequestParam(defaultValue = "10") int size) throws Exception {
         return musicGroupService.getAllGroupsPaginated(page, size);
     }
+
+    //Search endpoints
+    @GetMapping("/search/artists")
+    public PageResponse<Artist> searchArtists(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws Exception {
+        return artistService.searchArtists(q, page, size);
+    }
+
+    @GetMapping("/search/groups")
+    public PageResponse<MusicGroup> searchGroups(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws Exception {
+        return musicGroupService.searchGroups(q, page, size);
+    }
 }

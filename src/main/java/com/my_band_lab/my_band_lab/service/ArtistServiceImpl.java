@@ -190,4 +190,19 @@ public class ArtistServiceImpl implements ArtistService {
                 .hasPrevious(artistPage.hasPrevious())
                 .build();
     }
+    @Override
+    public PageResponse<Artist> searchArtists(String query, int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Artist> artistPage = artistRepository.searchByNameOrStageName(query, pageable);
+
+        return PageResponse.<Artist>builder()
+                .content(artistPage.getContent())
+                .totalElements(artistPage.getTotalElements())
+                .totalPages(artistPage.getTotalPages())
+                .currentPage(artistPage.getNumber())
+                .size(artistPage.getSize())
+                .hasNext(artistPage.hasNext())
+                .hasPrevious(artistPage.hasPrevious())
+                .build();
+    }
 }

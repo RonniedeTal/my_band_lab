@@ -18,4 +18,5 @@ public interface MusicGroupService {
     MusicGroup getGroupById(Long id) throws Exception;
     void deleteGroup(Long groupId) throws Exception;
     PageResponse<MusicGroup> getAllGroupsPaginated(int page, int size) throws Exception;
+    PageResponse<MusicGroup> searchGroups(String query, int page, int size) throws Exception;
 }

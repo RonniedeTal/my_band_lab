@@ -99,6 +99,10 @@ type Query {
     # Paginación - NUEVAS QUERIES
     artistsPaginated(page: Int = 0, size: Int = 10): ArtistPageResponse!
     musicGroupsPaginated(page: Int = 0, size: Int = 10): MusicGroupPageResponse!
+
+    # Searchquerys
+    searchArtists(query: String!, page: Int = 0, size: Int = 10): ArtistPageResponse!
+    searchGroups(query: String!, page: Int = 0, size: Int = 10): MusicGroupPageResponse!
 }
 
 # Mutations
