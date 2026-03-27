@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,13 +30,26 @@ public class MusicGroupServiceImpl implements MusicGroupService {
     @Override
     @Transactional
     public MusicGroup createGroup(String name, String description, MusicGenre genre, Long founderId) throws Exception {
+
+        // Si no se proporciona founderId, usar el usuario autenticado
+        User founder;
+        if (founderId != null) {
+            founder = userRepository.findById(founderId)
+                    .orElseThrow(() -> new Exception("Founder user not found"));
+        } else {
+            founder = getCurrentUser();
+        }
         // Verificar si ya existe un grupo con ese nombre
         if (musicGroupRepository.findByNameIgnoreCase(name).isPresent()) {
             throw new Exception("Group name already exists");
         }
 
-        User founder = userRepository.findById(founderId)
-                .orElseThrow(() -> new Exception("Founder user not found"));
+//        User founder = userRepository.findById(founderId)
+//                .orElseThrow(() -> new Exception("Founder user not found"));
+        // Verificar que el usuario tiene rol USER o ARTIST
+        if (!founder.getRole().name().equals("USER") && !founder.getRole().name().equals("ARTIST")) {
+            throw new Exception("Only users with USER or ARTIST role can create groups");
+        }
 
         MusicGroup group = MusicGroup.builder()
                 .name(name)
@@ -163,5 +178,17 @@ public class MusicGroupServiceImpl implements MusicGroupService {
                 .hasNext(groupPage.hasNext())
                 .hasPrevious(groupPage.hasPrevious())
                 .build();
+    }
+    @Override
+    public User getCurrentUser() throws Exception {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!(principal instanceof UserDetails)) {
+            throw new Exception("User not authenticated");
+        }
+
+        String email = ((UserDetails) principal).getUsername();
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new Exception("User not found"));
     }
 }
