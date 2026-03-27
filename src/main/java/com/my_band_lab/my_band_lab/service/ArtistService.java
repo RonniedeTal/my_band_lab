@@ -34,4 +34,6 @@ public interface ArtistService {
 
     PageResponse<Artist> getAllArtistsPaginated(int page, int size) throws Exception;
     PageResponse<Artist> searchArtists(String query, int page, int size) throws Exception;
+    Artist createArtistForCurrentUser(String stageName, String biography, MusicGenre genre,
+                                      List<Long> instrumentIds, Long mainInstrumentId) throws Exception;
 }
