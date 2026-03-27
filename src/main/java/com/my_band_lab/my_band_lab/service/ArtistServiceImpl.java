@@ -2,10 +2,7 @@ package com.my_band_lab.my_band_lab.service;
 
 import com.my_band_lab.my_band_lab.dto.CreateArtistRequest;
 import com.my_band_lab.my_band_lab.dto.PageResponse;
-import com.my_band_lab.my_band_lab.entity.Artist;
-import com.my_band_lab.my_band_lab.entity.Instrument;
-import com.my_band_lab.my_band_lab.entity.MusicGenre;
-import com.my_band_lab.my_band_lab.entity.User;
+import com.my_band_lab.my_band_lab.entity.*;
 import com.my_band_lab.my_band_lab.repository.ArtistRepository;
 import com.my_band_lab.my_band_lab.repository.InstrumentRepository;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
@@ -15,12 +12,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ArtistServiceImpl implements ArtistService {
+    private static final Logger log = LoggerFactory.getLogger(ArtistServiceImpl.class);
 
     @Autowired
     private ArtistRepository artistRepository;
@@ -204,5 +206,78 @@ public class ArtistServiceImpl implements ArtistService {
                 .hasNext(artistPage.hasNext())
                 .hasPrevious(artistPage.hasPrevious())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public Artist createArtistForCurrentUser(String stageName, String biography, MusicGenre genre,
+                                             List<Long> instrumentIds, Long mainInstrumentId) throws Exception {
+
+        // Obtener usuario autenticado
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!(principal instanceof UserDetails)) {
+            throw new Exception("User not authenticated");
+        }
+
+        String email = ((UserDetails) principal).getUsername();
+        User currentUser = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        // Verificar si el usuario ya es artista
+        if (artistRepository.findByUserId(currentUser.getId()).isPresent()) {
+            throw new Exception("User is already an artist");
+        }
+
+        // Verificar rol
+        if (!currentUser.getRole().name().equals("USER")) {
+            throw new Exception("Only users with USER role can become artists");
+        }
+
+        // Crear artista
+        Artist artist = Artist.builder()
+                .user(currentUser)
+                .stageName(stageName)
+                .biography(biography)
+                .genre(genre)
+                .verified(false)
+                .build();
+
+        Artist savedArtist = artistRepository.save(artist);
+
+        // Añadir instrumentos
+        if (instrumentIds != null && !instrumentIds.isEmpty()) {
+            List<Instrument> instruments = new ArrayList<>();
+            for (Long instrumentId : instrumentIds) {
+                Instrument instrument = instrumentRepository.findById(instrumentId)
+                        .orElseThrow(() -> new Exception("Instrument not found with id: " + instrumentId));
+                instruments.add(instrument);
+            }
+
+            // IMPORTANTE: Obtener el artista de la base de datos para asegurar que es una entidad gestionada
+            Artist managedArtist = artistRepository.findById(savedArtist.getId())
+                    .orElseThrow(() -> new Exception("Artist not found"));
+
+            // Establecer los instrumentos
+            managedArtist.getInstruments().clear();
+            managedArtist.getInstruments().addAll(instruments);
+
+            if (mainInstrumentId != null) {
+                boolean exists = instrumentIds.contains(mainInstrumentId);
+                if (!exists) {
+                    throw new Exception("Main instrument must be one of the selected instruments");
+                }
+                managedArtist.setMainInstrumentId(mainInstrumentId);
+            }
+
+            // Guardar para persistir la relación
+            savedArtist = artistRepository.save(managedArtist);
+        }
+
+        // Cambiar rol del usuario
+        currentUser.setRole(Role.ARTIST);
+        userRepository.save(currentUser);
+
+        return savedArtist;
     }
 }
