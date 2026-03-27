@@ -8,12 +8,26 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/groups")
 public class GroupController {
 
     @Autowired
     private MusicGroupService musicGroupService;
+
+    // GET /api/groups - Listar todos los grupos (protegido)
+    @GetMapping
+    public List<MusicGroup> getAllGroups() throws Exception {
+        return musicGroupService.getAllGroups();
+    }
+
+    // GET /api/groups/{id} - Obtener grupo por ID
+    @GetMapping("/{id}")
+    public MusicGroup getGroupById(@PathVariable Long id) throws Exception {
+        return musicGroupService.getGroupById(id);
+    }
 
     @PostMapping("/create")
     public MusicGroup createGroup(

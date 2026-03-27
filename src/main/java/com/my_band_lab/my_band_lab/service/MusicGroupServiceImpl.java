@@ -30,42 +30,69 @@ public class MusicGroupServiceImpl implements MusicGroupService {
     @Override
     @Transactional
     public MusicGroup createGroup(String name, String description, MusicGenre genre, Long founderId) throws Exception {
+        System.out.println("=== CREATE GROUP DEBUG ===");
+        System.out.println("1. Name: " + name);
+        System.out.println("2. Genre: " + genre);
+        System.out.println("3. founderId param: " + founderId);
 
-        // Si no se proporciona founderId, usar el usuario autenticado
-        User founder;
-        if (founderId != null) {
-            founder = userRepository.findById(founderId)
-                    .orElseThrow(() -> new Exception("Founder user not found"));
-        } else {
-            founder = getCurrentUser();
+        try {
+            // Si no se proporciona founderId, usar el usuario autenticado
+            User founder;
+            if (founderId != null) {
+                System.out.println("4. Using provided founderId");
+                founder = userRepository.findById(founderId)
+                        .orElseThrow(() -> new Exception("Founder user not found"));
+            } else {
+                System.out.println("4. Getting current user from SecurityContext");
+                founder = getCurrentUser();
+            }
+
+            System.out.println("5. Founder ID: " + founder.getId());
+            System.out.println("6. Founder Email: " + founder.getEmail());
+            System.out.println("7. Founder Role: " + founder.getRole());
+
+            // Verificar si ya existe un grupo con ese nombre
+            System.out.println("8. Checking if group name exists...");
+            if (musicGroupRepository.findByNameIgnoreCase(name).isPresent()) {
+                System.out.println("9. ERROR: Group name already exists!");
+                throw new Exception("Group name already exists");
+            }
+
+            // Verificar que el usuario tiene rol USER o ARTIST
+            System.out.println("9. Checking role...");
+            if (!founder.getRole().name().equals("USER") && !founder.getRole().name().equals("ARTIST")) {
+                System.out.println("10. ERROR: Invalid role: " + founder.getRole());
+                throw new Exception("Only users with USER or ARTIST role can create groups");
+            }
+
+            System.out.println("10. Creating group...");
+            MusicGroup group = MusicGroup.builder()
+                    .name(name)
+                    .description(description)
+                    .genre(genre)
+                    .founder(founder)
+                    .verified(false)
+                    .build();
+
+            // Añadir al fundador como miembro
+            System.out.println("11. Adding founder as member...");
+            group.getMembers().add(founder);
+
+            System.out.println("12. Saving group...");
+            MusicGroup saved = musicGroupRepository.save(group);
+            System.out.println("13. Group saved with ID: " + saved.getId());
+            System.out.println("14. Members count: " + saved.getMembers().size());
+
+            return saved;
+
+        } catch (Exception e) {
+            System.out.println("=== ERROR ===");
+            System.out.println("Exception: " + e.getClass().getName());
+            System.out.println("Message: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        // Verificar si ya existe un grupo con ese nombre
-        if (musicGroupRepository.findByNameIgnoreCase(name).isPresent()) {
-            throw new Exception("Group name already exists");
-        }
-
-//        User founder = userRepository.findById(founderId)
-//                .orElseThrow(() -> new Exception("Founder user not found"));
-        // Verificar que el usuario tiene rol USER o ARTIST
-        if (!founder.getRole().name().equals("USER") && !founder.getRole().name().equals("ARTIST")) {
-            throw new Exception("Only users with USER or ARTIST role can create groups");
-        }
-
-        MusicGroup group = MusicGroup.builder()
-                .name(name)
-                .description(description)
-                .genre(genre)
-                .founder(founder)  // Cambiado leader a founder
-                .verified(false)
-
-                .build();
-
-        // Añadir al líder como miembro
-        group.getMembers().add(founder);
-
-        return musicGroupRepository.save(group);
     }
-
     @Override
     @Transactional
     public MusicGroup addMember(Long groupId, Long userId) throws Exception {
