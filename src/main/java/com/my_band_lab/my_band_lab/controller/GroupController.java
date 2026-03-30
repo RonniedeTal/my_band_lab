@@ -4,9 +4,11 @@ import com.my_band_lab.my_band_lab.entity.MusicGenre;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.service.MusicGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -54,7 +56,11 @@ public class GroupController {
             throw new Exception("User not authenticated");
         }
 
-        return musicGroupService.addMember(groupId, userId);
+        try {
+            return musicGroupService.addMember(groupId, userId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
     }
 
     @DeleteMapping("/{groupId}/members/{userId}")
@@ -67,6 +73,10 @@ public class GroupController {
             throw new Exception("User not authenticated");
         }
 
-        return musicGroupService.removeMember(groupId, userId);
+        try {
+            return musicGroupService.removeMember(groupId, userId);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
     }
 }
