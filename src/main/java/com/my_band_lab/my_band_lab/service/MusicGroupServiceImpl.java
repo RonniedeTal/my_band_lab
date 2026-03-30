@@ -96,18 +96,58 @@ public class MusicGroupServiceImpl implements MusicGroupService {
     @Override
     @Transactional
     public MusicGroup addMember(Long groupId, Long userId) throws Exception {
-        MusicGroup group = musicGroupRepository.findById(groupId)
-                .orElseThrow(() -> new Exception("Group not found"));
+        System.out.println("=== ADD MEMBER DEBUG ===");
+        System.out.println("1. Group ID: " + groupId);
+        System.out.println("2. User ID to add: " + userId);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new Exception("User not found"));
+        try {
+            // Obtener el grupo
+            MusicGroup group = musicGroupRepository.findById(groupId)
+                    .orElseThrow(() -> new Exception("Group not found"));
+            System.out.println("3. Group found: " + group.getName());
+            System.out.println("4. Group founder ID: " + group.getFounder().getId());
 
-        if (group.getMembers().contains(user)) {
-            throw new Exception("User is already a member of this group");
+            // Obtener el usuario autenticado
+            User currentUser = getCurrentUser();
+            System.out.println("5. Current user ID: " + currentUser.getId());
+            System.out.println("6. Current user email: " + currentUser.getEmail());
+
+            // Verificar que el usuario autenticado es el fundador del grupo
+            if (!group.getFounder().getId().equals(currentUser.getId())) {
+                System.out.println("7. ERROR: User is not the founder");
+                throw new Exception("Only the group founder can add members");
+            }
+            System.out.println("7. User is the founder ✅");
+
+            // Obtener el usuario a añadir
+            User userToAdd = userRepository.findById(userId)
+                    .orElseThrow(() -> new Exception("User not found"));
+            System.out.println("8. User to add found: " + userToAdd.getEmail());
+
+            // Verificar que no sea ya miembro
+            if (group.getMembers().contains(userToAdd)) {
+                System.out.println("9. ERROR: User is already a member");
+                throw new Exception("User is already a member of this group");
+            }
+            System.out.println("9. User is not a member yet ✅");
+
+            // Añadir miembro
+            group.getMembers().add(userToAdd);
+            System.out.println("10. Member added, saving group...");
+
+            MusicGroup saved = musicGroupRepository.save(group);
+            System.out.println("11. Group saved with ID: " + saved.getId());
+            System.out.println("12. Members count: " + saved.getMembers().size());
+
+            return saved;
+
+        } catch (Exception e) {
+            System.out.println("=== ERROR IN ADD MEMBER ===");
+            System.out.println("Exception: " + e.getClass().getName());
+            System.out.println("Message: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-
-        group.getMembers().add(user);
-        return musicGroupRepository.save(group);
     }
 
     @Override
@@ -116,10 +156,19 @@ public class MusicGroupServiceImpl implements MusicGroupService {
         MusicGroup group = musicGroupRepository.findById(groupId)
                 .orElseThrow(() -> new Exception("Group not found"));
 
-        User user = userRepository.findById(userId)
+        // Obtener el usuario autenticado
+        User currentUser = getCurrentUser();
+
+        // Verificar que el usuario autenticado es el fundador del grupo
+        if (!group.getFounder().getId().equals(currentUser.getId())) {
+            throw new Exception("Only the group founder can remove members");
+        }
+
+        // Obtener el usuario a remover
+        User userToRemove = userRepository.findById(userId)
                 .orElseThrow(() -> new Exception("User not found"));
 
-        if (!group.getMembers().contains(user)) {
+        if (!group.getMembers().contains(userToRemove)) {
             throw new Exception("User is not a member of this group");
         }
 
@@ -128,7 +177,7 @@ public class MusicGroupServiceImpl implements MusicGroupService {
             throw new Exception("Cannot remove the group founder");
         }
 
-        group.getMembers().remove(user);
+        group.getMembers().remove(userToRemove);
         return musicGroupRepository.save(group);
     }
 
