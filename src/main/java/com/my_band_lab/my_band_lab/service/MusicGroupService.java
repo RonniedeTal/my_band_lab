@@ -19,5 +19,8 @@ public interface MusicGroupService {
     void deleteGroup(Long groupId) throws Exception;
     PageResponse<MusicGroup> getAllGroupsPaginated(int page, int size) throws Exception;
     PageResponse<MusicGroup> searchGroups(String query, int page, int size) throws Exception;
+    List<MusicGroup> getUnverifiedGroups() throws Exception;
+    PageResponse<MusicGroup> getUnverifiedGroupsPaginated(int page, int size) throws Exception;
+    MusicGroup verifyGroup(Long groupId) throws Exception;
     User getCurrentUser() throws Exception;
 }

@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -64,13 +65,13 @@ public class User {
     @JsonIgnore
     private Artist artist;
 
-    @ManyToMany(mappedBy = "members")
-    @JsonIgnore
+    @ManyToMany(mappedBy = "members",  fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"members", "founder"})
     @Builder.Default
     private List<MusicGroup> musicGroups = new ArrayList<>();
 
     @OneToOne(mappedBy = "founder")  // Cambiado de leader a founder
-    @JsonIgnore
+    @JsonIgnoreProperties({"members", "founder"})
     private MusicGroup foundedGroup;  // Cambiado de ledGroup a foundedGroup
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -2,7 +2,9 @@ package com.my_band_lab.my_band_lab.controller;
 
 import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.Artist;
+import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.service.ArtistService;
+import com.my_band_lab.my_band_lab.service.MusicGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,8 @@ public class AdminController {
 
     @Autowired
     private ArtistService artistService;
+    @Autowired
+    private MusicGroupService musicGroupService;
 
     // GET /api/admin/artists/unverified - Listar artistas no verificados
     @GetMapping("/artists/unverified")
@@ -49,5 +53,37 @@ public class AdminController {
     @PutMapping("/artists/{id}/verify")
     public Artist verifyArtist(@PathVariable Long id) throws Exception {
         return artistService.verifyArtist(id);
+    }
+
+    // ==================== GRUPOS ====================
+
+    @GetMapping("/groups/unverified")
+    public Map<String, Object> getUnverifiedGroups() throws Exception {
+        List<MusicGroup> groups = musicGroupService.getUnverifiedGroups();
+        Map<String, Object> response = new HashMap<>();
+
+        if (groups.isEmpty()) {
+            response.put("message", "No unverified groups found");
+            response.put("count", 0);
+            response.put("groups", new ArrayList<>());
+        } else {
+            response.put("message", "Unverified groups found");
+            response.put("count", groups.size());
+            response.put("groups", groups);
+        }
+
+        return response;
+    }
+
+    @GetMapping("/groups/unverified/paginated")
+    public PageResponse<MusicGroup> getUnverifiedGroupsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws Exception {
+        return musicGroupService.getUnverifiedGroupsPaginated(page, size);
+    }
+
+    @PutMapping("/groups/{id}/verify")
+    public MusicGroup verifyGroup(@PathVariable Long id) throws Exception {
+        return musicGroupService.verifyGroup(id);
     }
 }
