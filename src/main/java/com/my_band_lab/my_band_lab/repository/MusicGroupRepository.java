@@ -17,6 +17,9 @@ public interface MusicGroupRepository extends JpaRepository<MusicGroup, Long> {
     Optional<MusicGroup> findByNameIgnoreCase(String name);
     List<MusicGroup> findByGenre(MusicGenre genre);
 
+    List<MusicGroup> findByVerifiedFalse();
+    Page<MusicGroup> findByVerifiedFalse(Pageable pageable);
+
     @Query("SELECT mg FROM MusicGroup mg WHERE LOWER(mg.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(mg.description) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<MusicGroup> searchByNameOrDescription(@Param("query") String query, Pageable pageable);
 }

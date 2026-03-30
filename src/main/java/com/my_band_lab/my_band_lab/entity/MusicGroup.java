@@ -2,6 +2,7 @@ package com.my_band_lab.my_band_lab.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -44,12 +45,14 @@ public class MusicGroup {
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonIgnore
     @Builder.Default
+    @JsonIgnoreProperties({"musicGroups", "foundedGroup"})
+
     private List<User> members = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "founder_id")  // Cambiado de leader_id a founder_id
+    @JsonIgnoreProperties({"musicGroups", "foundedGroup", "artist"})
     private User founder;  // Cambiado de leader a founder
 
     private boolean verified;

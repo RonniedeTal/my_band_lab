@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ArtistServiceImpl implements ArtistService {
@@ -89,8 +90,22 @@ public class ArtistServiceImpl implements ArtistService {
 
     @Override
     public Artist getArtistById(Long id) throws Exception {
-        return artistRepository.findById(id)
-                .orElseThrow(() -> new Exception("Artist not found with id: " + id));
+        System.out.println("=== GET ARTIST BY ID ===");
+        System.out.println("Artist ID: " + id);
+
+        Optional<Artist> artist = artistRepository.findById(id);
+        System.out.println("Artist found: " + artist.isPresent());
+
+        if (artist.isEmpty()) {
+            throw new Exception("Artist not found with id: " + id);
+        }
+
+        Artist result = artist.get();
+        System.out.println("Artist stageName: " + result.getStageName());
+        System.out.println("Artist verified: " + result.isVerified());
+        System.out.println("Artist instruments size: " + (result.getInstruments() != null ? result.getInstruments().size() : 0));
+
+        return result;
     }
 
     @Override
@@ -279,5 +294,45 @@ public class ArtistServiceImpl implements ArtistService {
         userRepository.save(currentUser);
 
         return savedArtist;
+    }
+    @Override
+    public List<Artist> getUnverifiedArtists() throws Exception {
+        List<Artist> artists = artistRepository.findByVerifiedFalse();
+//        if (artists.isEmpty()) {
+//            throw new Exception("No unverified artists found");
+//        }
+//        return artists;
+
+        // Devolver lista vacía en lugar de lanzar excepción
+        return artists == null ? new ArrayList<>() : artists;
+    }
+
+    @Override
+    public PageResponse<Artist> getUnverifiedArtistsPaginated(int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Artist> artistPage = artistRepository.findByVerifiedFalse(pageable);
+
+        return PageResponse.<Artist>builder()
+                .content(artistPage.getContent())
+                .totalElements(artistPage.getTotalElements())
+                .totalPages(artistPage.getTotalPages())
+                .currentPage(artistPage.getNumber())
+                .size(artistPage.getSize())
+                .hasNext(artistPage.hasNext())
+                .hasPrevious(artistPage.hasPrevious())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Artist verifyArtist(Long artistId) throws Exception {
+        Artist artist = getArtistById(artistId);
+
+        if (artist.isVerified()) {
+            throw new Exception("Artist is already verified");
+        }
+
+        artist.setVerified(true);
+        return artistRepository.save(artist);
     }
 }

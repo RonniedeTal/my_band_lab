@@ -45,4 +45,10 @@ public class ArtistController {
 
         return artist;
     }
+    @GetMapping("/{id}")
+    public Artist getArtistById(@PathVariable Long id) throws Exception {
+        System.out.println("=== GET ARTIST CONTROLLER ===");
+        System.out.println("Requested ID: " + id);
+        return artistService.getArtistById(id);
+    }
 }

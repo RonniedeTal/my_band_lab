@@ -2,6 +2,7 @@ package com.my_band_lab.my_band_lab.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,13 +40,14 @@ public class Artist {
 
     private boolean verified;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "artist_instrument",
             joinColumns = @JoinColumn(name = "artist_id"),
             inverseJoinColumns = @JoinColumn(name = "instrument_id")
     )
     @Builder.Default
+    @JsonIgnoreProperties({"artists"})
     private List<Instrument> instruments = new ArrayList<>();
 
     @Column(name = "main_instrument_id")

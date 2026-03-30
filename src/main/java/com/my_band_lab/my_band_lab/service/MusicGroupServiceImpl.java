@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -266,5 +267,40 @@ public class MusicGroupServiceImpl implements MusicGroupService {
         String email = ((UserDetails) principal).getUsername();
         return userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new Exception("User not found"));
+    }
+
+    @Override
+    public List<MusicGroup> getUnverifiedGroups() throws Exception {
+        List<MusicGroup> groups = musicGroupRepository.findByVerifiedFalse();
+        return groups != null ? groups : new ArrayList<>();
+    }
+
+    @Override
+    public PageResponse<MusicGroup> getUnverifiedGroupsPaginated(int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MusicGroup> groupPage = musicGroupRepository.findByVerifiedFalse(pageable);
+
+        return PageResponse.<MusicGroup>builder()
+                .content(groupPage.getContent())
+                .totalElements(groupPage.getTotalElements())
+                .totalPages(groupPage.getTotalPages())
+                .currentPage(groupPage.getNumber())
+                .size(groupPage.getSize())
+                .hasNext(groupPage.hasNext())
+                .hasPrevious(groupPage.hasPrevious())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public MusicGroup verifyGroup(Long groupId) throws Exception {
+        MusicGroup group = getGroupById(groupId);
+
+        if (group.isVerified()) {
+            throw new Exception("Group is already verified");
+        }
+
+        group.setVerified(true);
+        return musicGroupRepository.save(group);
     }
 }
