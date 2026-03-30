@@ -280,4 +280,41 @@ public class ArtistServiceImpl implements ArtistService {
 
         return savedArtist;
     }
+    @Override
+    public List<Artist> getUnverifiedArtists() throws Exception {
+        List<Artist> artists = artistRepository.findByVerifiedFalse();
+        if (artists.isEmpty()) {
+            throw new Exception("No unverified artists found");
+        }
+        return artists;
+    }
+
+    @Override
+    public PageResponse<Artist> getUnverifiedArtistsPaginated(int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Artist> artistPage = artistRepository.findByVerifiedFalse(pageable);
+
+        return PageResponse.<Artist>builder()
+                .content(artistPage.getContent())
+                .totalElements(artistPage.getTotalElements())
+                .totalPages(artistPage.getTotalPages())
+                .currentPage(artistPage.getNumber())
+                .size(artistPage.getSize())
+                .hasNext(artistPage.hasNext())
+                .hasPrevious(artistPage.hasPrevious())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Artist verifyArtist(Long artistId) throws Exception {
+        Artist artist = getArtistById(artistId);
+
+        if (artist.isVerified()) {
+            throw new Exception("Artist is already verified");
+        }
+
+        artist.setVerified(true);
+        return artistRepository.save(artist);
+    }
 }

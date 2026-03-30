@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/graphiql").permitAll()     // ← Opcional: para interfaz gráfica
 
                         .requestMatchers("/auth/**").permitAll()
+                        // Endpoints de administración - solo ADMIN
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
