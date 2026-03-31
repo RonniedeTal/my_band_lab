@@ -287,4 +287,9 @@ public class UserServiceImpl implements UserService{
                 .groups(groupSummaries)
                 .build();
     }
+    @Override
+    public UserAdminResponse getUserByIdForAdmin(Long id) throws Exception {
+        User user = findUserById(id);
+        return convertToAdminResponse(user);
+    }
 }

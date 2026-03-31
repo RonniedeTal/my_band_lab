@@ -8,6 +8,8 @@ import com.my_band_lab.my_band_lab.service.ArtistService;
 import com.my_band_lab.my_band_lab.service.MusicGroupService;
 import com.my_band_lab.my_band_lab.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -102,5 +104,19 @@ public class AdminController {
             return userService.getUsersByRoleForAdminPaginated(role, page, size);
         }
         return userService.getAllUsersForAdminPaginated(page, size);
+    }
+    @GetMapping("/users/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            UserAdminResponse user = userService.getUserByIdForAdmin(id);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            if (e.getMessage().equals("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "User not found with id: " + id));
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 }
