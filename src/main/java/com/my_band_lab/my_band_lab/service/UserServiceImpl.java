@@ -6,6 +6,7 @@ import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
 import com.my_band_lab.my_band_lab.entity.Role;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -291,5 +292,31 @@ public class UserServiceImpl implements UserService{
     public UserAdminResponse getUserByIdForAdmin(Long id) throws Exception {
         User user = findUserById(id);
         return convertToAdminResponse(user);
+    }
+    @Override
+    @Transactional
+    public UserAdminResponse changeUserRole(Long userId, String newRole, Long currentAdminId) throws Exception {
+        // 1. Validar que el rol sea válido
+        Role targetRole;
+        try {
+            targetRole = Role.valueOf(newRole.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Invalid role. Valid roles: USER, ARTIST, ADMIN");
+        }
+
+        // 2. Buscar el usuario a modificar
+        User user = findUserById(userId);
+
+        // 3. No permitir cambiar el propio rol
+        if (userId.equals(currentAdminId)) {
+            throw new Exception("You cannot change your own role");
+        }
+
+        // 4. Actualizar el rol
+        user.setRole(targetRole);
+        User updatedUser = userRepository.save(user);
+
+        // 5. Devolver el usuario actualizado
+        return convertToAdminResponse(updatedUser);
     }
 }
