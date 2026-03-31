@@ -150,4 +150,31 @@ public class AdminController {
                     .body(Map.of("message", e.getMessage()));
         }
     }
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) throws Exception {
+
+        // Obtener el ID del admin actual
+        User currentAdmin = userService.getCurrentUser();
+
+        try {
+            userService.deleteUserByAdmin(id, currentAdmin.getId());
+            return ResponseEntity.ok(Map.of(
+                    "message", "User with id " + id + " has been deleted successfully",
+                    "deletedUserId", id
+            ));
+        } catch (Exception e) {
+            if (e.getMessage().equals("You cannot delete your own account")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", e.getMessage()));
+            }
+            if (e.getMessage().equals("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "User not found with id: " + id));
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
 }

@@ -39,4 +39,5 @@ public interface UserService {
     PageResponse<UserAdminResponse> getUsersByRoleForAdminPaginated(String role, int page, int size) throws Exception;
     UserAdminResponse getUserByIdForAdmin(Long id) throws Exception;
     UserAdminResponse changeUserRole(Long userId, String newRole, Long currentAdminId) throws Exception;
+    void deleteUserByAdmin(Long userId, Long currentAdminId) throws Exception;
 }
