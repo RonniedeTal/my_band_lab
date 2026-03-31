@@ -1,10 +1,12 @@
 package com.my_band_lab.my_band_lab.controller;
 
 import com.my_band_lab.my_band_lab.dto.PageResponse;
+import com.my_band_lab.my_band_lab.dto.UserAdminResponse;
 import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.service.ArtistService;
 import com.my_band_lab.my_band_lab.service.MusicGroupService;
+import com.my_band_lab.my_band_lab.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,8 @@ public class AdminController {
     private ArtistService artistService;
     @Autowired
     private MusicGroupService musicGroupService;
+    @Autowired
+    private UserService userService;
 
     // GET /api/admin/artists/unverified - Listar artistas no verificados
     @GetMapping("/artists/unverified")
@@ -85,5 +89,18 @@ public class AdminController {
     @PutMapping("/groups/{id}/verify")
     public MusicGroup verifyGroup(@PathVariable Long id) throws Exception {
         return musicGroupService.verifyGroup(id);
+    }
+    // ==================== USUARIOS ====================
+
+    @GetMapping("/users")
+    public PageResponse<UserAdminResponse> getAllUsers(
+            @RequestParam(required = false) String role,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws Exception {
+
+        if (role != null && !role.isEmpty()) {
+            return userService.getUsersByRoleForAdminPaginated(role, page, size);
+        }
+        return userService.getAllUsersForAdminPaginated(page, size);
     }
 }

@@ -38,13 +38,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos
-                        .requestMatchers("/api/public/**").permitAll()  // ← Esto ya cubre /api/public/artists/paginated
-                        .requestMatchers("/graphql").permitAll()      // ← AÑADIR ESTA LÍNEA
-                        .requestMatchers("/graphiql").permitAll()     // ← Opcional: para interfaz gráfica
-
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/graphql").permitAll()
+                        .requestMatchers("/graphiql").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+
                         // Endpoints de administración - solo ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // El resto requiere autenticación
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -54,16 +56,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
-//configuracion futura
-//.authorizeHttpRequests(auth -> auth
-//        // Públicos
-//        .requestMatchers("/api/public/**").permitAll()
-//    .requestMatchers("/auth/**").permitAll()
-//
-//// GraphQL protegido
-//    .requestMatchers("/graphql").authenticated()
-//
-//// Resto denegado
-//    .anyRequest().denyAll()
-//)
