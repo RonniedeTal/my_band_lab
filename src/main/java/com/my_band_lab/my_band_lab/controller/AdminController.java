@@ -1,15 +1,20 @@
 package com.my_band_lab.my_band_lab.controller;
 
 import com.my_band_lab.my_band_lab.dto.PageResponse;
+import com.my_band_lab.my_band_lab.dto.RoleChangeRequest;
 import com.my_band_lab.my_band_lab.dto.UserAdminResponse;
 import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
+import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.service.ArtistService;
 import com.my_band_lab.my_band_lab.service.MusicGroupService;
 import com.my_band_lab.my_band_lab.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -116,6 +121,32 @@ public class AdminController {
                         .body(Map.of("message", "User not found with id: " + id));
             }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+    @PutMapping("/users/{id}/role")
+    public ResponseEntity<?> changeUserRole(
+            @PathVariable Long id,
+            @Valid @RequestBody RoleChangeRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) throws Exception {
+
+        // Obtener el ID del admin actual
+        String email = userDetails.getUsername();
+        User currentAdmin = userService.getCurrentUser();
+
+        try {
+            UserAdminResponse updatedUser = userService.changeUserRole(id, request.getRole(), currentAdmin.getId());
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            if (e.getMessage().equals("You cannot change your own role")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", e.getMessage()));
+            }
+            if (e.getMessage().contains("Invalid role")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("message", e.getMessage(), "valid_roles", List.of("USER", "ARTIST", "ADMIN")));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
         }
     }
