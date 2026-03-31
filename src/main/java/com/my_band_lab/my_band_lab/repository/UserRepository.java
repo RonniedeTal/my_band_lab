@@ -1,11 +1,15 @@
 package com.my_band_lab.my_band_lab.repository;
 
+import com.my_band_lab.my_band_lab.entity.Role;
 import com.my_band_lab.my_band_lab.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,4 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNameIgnoreCaseAndSurnameIgnoreCase(String name, String surname);
 
     Optional<User> findByEmailIgnoreCase(@NotBlank(message = "Please introduce your email") @Email(message = "Please provide a valid email address") String email);
+
+    List<User> findByRole(Role role);
+    Page<User> findByRole(Role role, Pageable pageable);
 }

@@ -1,16 +1,26 @@
 package com.my_band_lab.my_band_lab.service;
 
+import com.my_band_lab.my_band_lab.dto.PageResponse;
+import com.my_band_lab.my_band_lab.dto.UserAdminResponse;
 import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
+import com.my_band_lab.my_band_lab.entity.Role;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.my_band_lab.my_band_lab.dto.UpdateProfileRequest;
+import com.my_band_lab.my_band_lab.dto.ArtistSummary;
+import com.my_band_lab.my_band_lab.dto.GroupSummary;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -163,4 +173,118 @@ public class UserServiceImpl implements UserService{
                 .build();
     }
 
+    @Override
+    public List<UserAdminResponse> getAllUsersForAdmin() throws Exception {
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            throw new Exception("No users found");
+        }
+        return users.stream()
+                .map(this::convertToAdminResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<UserAdminResponse> getAllUsersForAdminPaginated(int page, int size) throws Exception {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        List<UserAdminResponse> content = userPage.getContent().stream()
+                .map(this::convertToAdminResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<UserAdminResponse>builder()
+                .content(content)
+                .totalElements(userPage.getTotalElements())
+                .totalPages(userPage.getTotalPages())
+                .currentPage(userPage.getNumber())
+                .size(userPage.getSize())
+                .hasNext(userPage.hasNext())
+                .hasPrevious(userPage.hasPrevious())
+                .build();
+    }
+
+    @Override
+    public List<UserAdminResponse> getUsersByRoleForAdmin(String role) throws Exception {
+        Role userRole;
+        try {
+            userRole = Role.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Invalid role. Valid roles: USER, ARTIST, ADMIN");
+        }
+
+        List<User> users = userRepository.findByRole(userRole);
+        if (users.isEmpty()) {
+            throw new Exception("No users found with role: " + role);
+        }
+        return users.stream()
+                .map(this::convertToAdminResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<UserAdminResponse> getUsersByRoleForAdminPaginated(String role, int page, int size) throws Exception {
+        Role userRole;
+        try {
+            userRole = Role.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Invalid role. Valid roles: USER, ARTIST, ADMIN");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> userPage = userRepository.findByRole(userRole, pageable);
+
+        List<UserAdminResponse> content = userPage.getContent().stream()
+                .map(this::convertToAdminResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<UserAdminResponse>builder()
+                .content(content)
+                .totalElements(userPage.getTotalElements())
+                .totalPages(userPage.getTotalPages())
+                .currentPage(userPage.getNumber())
+                .size(userPage.getSize())
+                .hasNext(userPage.hasNext())
+                .hasPrevious(userPage.hasPrevious())
+                .build();
+    }
+
+    private UserAdminResponse convertToAdminResponse(User user) {
+        // Obtener información del artista si existe
+        ArtistSummary artistSummary = null;
+        if (user.getArtist() != null) {
+            artistSummary = ArtistSummary.builder()
+                    .id(user.getArtist().getId())
+                    .stageName(user.getArtist().getStageName())
+                    .verified(user.getArtist().isVerified())
+                    .build();
+        }
+
+        // Obtener información de grupos
+        List<GroupSummary> groupSummaries = new ArrayList<>();
+        if (user.getMusicGroups() != null) {
+            for (var group : user.getMusicGroups()) {
+                String roleInGroup = group.getFounder() != null &&
+                        group.getFounder().getId().equals(user.getId()) ? "FOUNDER" : "MEMBER";
+                groupSummaries.add(GroupSummary.builder()
+                        .id(group.getId())
+                        .name(group.getName())
+                        .role(roleInGroup)
+                        .build());
+            }
+        }
+
+        return UserAdminResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .profileImageUrl(user.getProfileImageUrl())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .artist(artistSummary)
+                .groups(groupSummaries)
+                .build();
+    }
 }
