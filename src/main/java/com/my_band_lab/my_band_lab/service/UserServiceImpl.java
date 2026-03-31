@@ -3,8 +3,11 @@ package com.my_band_lab.my_band_lab.service;
 import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.dto.UserAdminResponse;
 import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
+import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.entity.Role;
 import com.my_band_lab.my_band_lab.entity.User;
+import com.my_band_lab.my_band_lab.repository.ArtistRepository;
+import com.my_band_lab.my_band_lab.repository.MusicGroupRepository;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,12 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MusicGroupRepository musicGroupRepository;
+
+    @Autowired
+    private ArtistRepository artistRepository;
 
     //saveUser
     @Override
@@ -318,5 +327,53 @@ public class UserServiceImpl implements UserService{
 
         // 5. Devolver el usuario actualizado
         return convertToAdminResponse(updatedUser);
+    }
+    @Override
+    @Transactional
+    public void deleteUserByAdmin(Long userId, Long currentAdminId) throws Exception {
+        // 1. No permitir eliminar el propio usuario
+        if (userId.equals(currentAdminId)) {
+            throw new Exception("You cannot delete your own account");
+        }
+
+        // 2. Buscar el usuario a eliminar
+        User user = findUserById(userId);
+
+        // 3. Eliminar relaciones del usuario con grupos donde es miembro
+        if (user.getMusicGroups() != null && !user.getMusicGroups().isEmpty()) {
+            for (MusicGroup group : user.getMusicGroups()) {
+                // Si el usuario es fundador, transferir fundador o advertir
+                if (group.getFounder() != null && group.getFounder().getId().equals(userId)) {
+                    // Buscar otro miembro para transferir fundador
+                    List<User> members = group.getMembers().stream()
+                            .filter(m -> !m.getId().equals(userId))
+                            .collect(Collectors.toList());
+
+                    if (members.isEmpty()) {
+                        // Si no hay otros miembros, eliminar el grupo
+                        musicGroupRepository.delete(group);
+                    } else {
+                        // Transferir fundador al primer miembro disponible
+                        User newFounder = members.get(0);
+                        group.setFounder(newFounder);
+                        // Eliminar al usuario de los miembros
+                        group.getMembers().remove(user);
+                        musicGroupRepository.save(group);
+                    }
+                } else {
+                    // Si no es fundador, solo remover de miembros
+                    group.getMembers().remove(user);
+                    musicGroupRepository.save(group);
+                }
+            }
+        }
+
+        // 4. Eliminar el artista si existe
+        if (user.getArtist() != null) {
+            artistRepository.delete(user.getArtist());
+        }
+
+        // 5. Eliminar el usuario
+        userRepository.delete(user);
     }
 }
