@@ -20,7 +20,7 @@ public class JwtUtil {
     @Value("${jwt.secret:mySecretKeyForJWTTokenGeneration1234567890}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}") // 24 horas en milisegundos
+    @Value("${jwt.expiration:86400000}")
     private Long expiration;
 
     private Key getSigningKey() {
@@ -70,28 +70,5 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
         return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
-    //para pruebas
-    public static void main(String[] args) {
-        JwtUtil jwtUtil = new JwtUtil();
-
-        // Asignar valores por defecto manualmente para la prueba
-        jwtUtil.secret = "mySecretKeyForJWTTokenGeneration1234567890";
-        jwtUtil.expiration = 86400000L; // 24 horas
-
-        // Generar token
-        String token = jwtUtil.generateToken("test@example.com");
-        System.out.println("=== JWT TEST ===");
-        System.out.println("Token: " + token);
-        System.out.println();
-
-        // Extraer email
-        String email = jwtUtil.extractEmail(token);
-        System.out.println("Email extraído: " + email);
-
-        // Extraer expiración
-        Date expiration = jwtUtil.extractExpiration(token);
-        System.out.println("Expira: " + expiration);
     }
 }
