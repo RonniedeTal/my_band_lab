@@ -67,7 +67,55 @@ type MusicGroup {
     updatedAt: String
 }
 
-# Queries
+# Nuevos tipos para Follow y Favorite
+type Follow {
+    id: ID!
+    user: User!
+    artist: Artist!
+    createdAt: String!
+}
+
+type Favorite {
+    id: ID!
+    user: User!
+    artist: Artist!
+    createdAt: String!
+}
+
+type FollowResponse {
+    success: Boolean!
+    message: String!
+    followersCount: Int!
+}
+
+type FavoriteResponse {
+    success: Boolean!
+    message: String!
+}
+
+# Tipo para respuestas paginadas de artistas
+type ArtistPageResponse {
+    content: [Artist!]!
+    totalElements: Int!
+    totalPages: Int!
+    currentPage: Int!
+    size: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+}
+
+# Tipo para respuestas paginadas de grupos
+type MusicGroupPageResponse {
+    content: [MusicGroup!]!
+    totalElements: Int!
+    totalPages: Int!
+    currentPage: Int!
+    size: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+}
+
+# ============ QUERIES (TODAS JUNTAS) ============
 type Query {
     # User queries
     userById(id: ID!): User
@@ -96,23 +144,31 @@ type Query {
     artistInstruments(artistId: ID!): [Instrument!]!
     artistsByInstrument(instrumentId: ID!): [Artist!]!
 
-    # Paginación - NUEVAS QUERIES
+    # Paginación
     artistsPaginated(page: Int = 0, size: Int = 10): ArtistPageResponse!
     musicGroupsPaginated(page: Int = 0, size: Int = 10): MusicGroupPageResponse!
 
-    # Searchquerys
+    # Search queries
     searchArtists(query: String!, page: Int = 0, size: Int = 10): ArtistPageResponse!
     searchGroups(query: String!, page: Int = 0, size: Int = 10): MusicGroupPageResponse!
+
+    # Follow queries
+    followedArtists(userId: ID!, page: Int, size: Int): ArtistPageResponse!
+    isFollowingArtist(userId: ID!, artistId: ID!): Boolean!
+
+    # Favorite queries
+    favoriteArtists(userId: ID!, page: Int, size: Int): ArtistPageResponse!
+    isFavoriteArtist(userId: ID!, artistId: ID!): Boolean!
 }
 
-# Mutations
+# ============ MUTATIONS (TODAS JUNTAS) ============
 type Mutation {
     # User mutations
     createUser(name: String!, surname: String!, email: String!, password: String!, profileImageUrl: String): User!
     updateUser(id: ID!, name: String, surname: String, email: String, password: String, profileImageUrl: String): User!
     deleteUser(id: ID!): Boolean!
 
-    # Artist mutations (MODIFICADO)
+    # Artist mutations
     createArtist(
         userId: ID!
         stageName: String!
@@ -121,7 +177,6 @@ type Mutation {
         instrumentIds: [ID!]!
         mainInstrumentId: ID
     ): Artist!
-
     updateArtist(id: ID!, stageName: String, biography: String, genre: MusicGenre): Artist!
     deleteArtist(id: ID!): Boolean!
 
@@ -139,27 +194,11 @@ type Mutation {
         mainInstrumentId: ID
     ): Artist!
 
+    # Follow mutations
+    followArtist(artistId: ID!): FollowResponse!
+    unfollowArtist(artistId: ID!): FollowResponse!
 
-}
-
-# Tipo para respuestas paginadas de artistas
-type ArtistPageResponse {
-    content: [Artist!]!
-    totalElements: Int!
-    totalPages: Int!
-    currentPage: Int!
-    size: Int!
-    hasNext: Boolean!
-    hasPrevious: Boolean!
-}
-
-# Tipo para respuestas paginadas de grupos
-type MusicGroupPageResponse {
-    content: [MusicGroup!]!
-    totalElements: Int!
-    totalPages: Int!
-    currentPage: Int!
-    size: Int!
-    hasNext: Boolean!
-    hasPrevious: Boolean!
+    # Favorite mutations
+    addFavoriteArtist(artistId: ID!): FavoriteResponse!
+    removeFavoriteArtist(artistId: ID!): FavoriteResponse!
 }
