@@ -81,6 +81,20 @@ type Favorite {
     artist: Artist!
     createdAt: String!
 }
+# Tipos para Follow y Favorite (Grupos)
+type GroupFollow {
+    id: ID!
+    user: User!
+    group: MusicGroup!
+    createdAt: String!
+}
+
+type GroupFavorite {
+    id: ID!
+    user: User!
+    group: MusicGroup!
+    createdAt: String!
+}
 
 type FollowResponse {
     success: Boolean!
@@ -156,9 +170,15 @@ type Query {
     followedArtists(userId: ID!, page: Int, size: Int): ArtistPageResponse!
     isFollowingArtist(userId: ID!, artistId: ID!): Boolean!
 
+    followedGroups(userId: ID!, page: Int, size: Int): MusicGroupPageResponse!
+    isFollowingGroup(userId: ID!, groupId: ID!): Boolean!
+
     # Favorite queries
     favoriteArtists(userId: ID!, page: Int, size: Int): ArtistPageResponse!
     isFavoriteArtist(userId: ID!, artistId: ID!): Boolean!
+
+    favoriteGroups(userId: ID!, page: Int, size: Int): MusicGroupPageResponse!
+    isFavoriteGroup(userId: ID!, groupId: ID!): Boolean!
 }
 
 # ============ MUTATIONS (TODAS JUNTAS) ============
@@ -198,7 +218,13 @@ type Mutation {
     followArtist(artistId: ID!): FollowResponse!
     unfollowArtist(artistId: ID!): FollowResponse!
 
+    followGroup(groupId: ID!): FollowResponse!
+    unfollowGroup(groupId: ID!): FollowResponse!
+
     # Favorite mutations
     addFavoriteArtist(artistId: ID!): FavoriteResponse!
     removeFavoriteArtist(artistId: ID!): FavoriteResponse!
+
+    addFavoriteGroup(groupId: ID!): FavoriteResponse!
+    removeFavoriteGroup(groupId: ID!): FavoriteResponse!
 }
