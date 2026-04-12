@@ -8,6 +8,7 @@ type User {
     profileImageUrl: String
     createdAt: String
     updatedAt: String
+    role: String!
     artist: Artist
     musicGroups: [MusicGroup!]!
     ledGroup: MusicGroup
@@ -199,6 +200,15 @@ type Mutation {
     ): Artist!
     updateArtist(id: ID!, stageName: String, biography: String, genre: MusicGenre): Artist!
     deleteArtist(id: ID!): Boolean!
+
+    # Nueva mutation para crear artista con el usuario autenticado
+    createArtistForCurrentUser(
+        stageName: String!
+        biography: String
+        genre: MusicGenre!
+        instrumentIds: [ID!]!
+        mainInstrumentId: ID
+    ): Artist!
 
     # MusicGroup mutations
     createMusicGroup(name: String!, description: String, genre: MusicGenre!, founderId: ID!): MusicGroup!

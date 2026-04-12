@@ -39,4 +39,5 @@ public interface ArtistService {
     List<Artist> getUnverifiedArtists() throws Exception;
     PageResponse<Artist> getUnverifiedArtistsPaginated(int page, int size) throws Exception;
     Artist verifyArtist(Long artistId) throws Exception;
+
 }
