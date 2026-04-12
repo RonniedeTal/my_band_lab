@@ -166,6 +166,18 @@ public class UserGraphQLController {
         return true;
     }
 
+    @MutationMapping
+    public Artist createArtistForCurrentUser(
+            @Argument String stageName,
+            @Argument String biography,
+            @Argument MusicGenre genre,
+            @Argument List<Long> instrumentIds,
+            @Argument Long mainInstrumentId) throws Exception {
+
+        return artistService.createArtistForCurrentUser(
+                stageName, biography, genre, instrumentIds, mainInstrumentId);
+    }
+
     // MusicGroup Mutations
     @MutationMapping
     public MusicGroup createMusicGroup(@Argument String name, @Argument String description,
