@@ -200,6 +200,7 @@ type Mutation {
     ): Artist!
     updateArtist(id: ID!, stageName: String, biography: String, genre: MusicGenre): Artist!
     deleteArtist(id: ID!): Boolean!
+    updateProfileImage(profileImageUrl: String!): User!
 
     # Nueva mutation para crear artista con el usuario autenticado
     createArtistForCurrentUser(

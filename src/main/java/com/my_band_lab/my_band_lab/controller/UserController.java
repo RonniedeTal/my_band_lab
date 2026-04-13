@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.controller;
 
 
+import com.my_band_lab.my_band_lab.dto.UpdateProfileImageRequest;
 import com.my_band_lab.my_band_lab.dto.UpdateProfileRequest;
 import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
 import com.my_band_lab.my_band_lab.entity.User;
@@ -79,5 +80,11 @@ public class UserController {
     @PutMapping("/api/me")
     public UserProfileResponse updateCurrentUserProfile(@Valid @RequestBody UpdateProfileRequest request) throws Exception {
         return userService.updateCurrentUserProfile(request);
+    }
+
+    @PutMapping("/api/me/profile-image")
+    public User updateProfileImage(
+            @RequestBody UpdateProfileImageRequest request) throws Exception {
+        return userService.updateProfileImage(request.getProfileImageUrl());
     }
 }

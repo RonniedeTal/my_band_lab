@@ -133,6 +133,11 @@ public class UserGraphQLController {
         return true;
     }
 
+    @MutationMapping
+    public User updateProfileImage(@Argument String profileImageUrl) throws Exception {
+        return userService.updateProfileImage(profileImageUrl);
+    }
+
     // Artist Mutations
     @MutationMapping
     public Artist createArtist(
