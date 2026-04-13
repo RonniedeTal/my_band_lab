@@ -376,4 +376,10 @@ public class UserServiceImpl implements UserService{
         // 5. Eliminar el usuario
         userRepository.delete(user);
     }
+    @Override
+    public User updateProfileImage(String profileImageUrl) throws Exception {
+        User currentUser = getCurrentUser();
+        currentUser.setProfileImageUrl(profileImageUrl);
+        return userRepository.save(currentUser);
+    }
 }
