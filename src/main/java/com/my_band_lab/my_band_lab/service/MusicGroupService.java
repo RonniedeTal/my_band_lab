@@ -23,4 +23,5 @@ public interface MusicGroupService {
     PageResponse<MusicGroup> getUnverifiedGroupsPaginated(int page, int size) throws Exception;
     MusicGroup verifyGroup(Long groupId) throws Exception;
     User getCurrentUser() throws Exception;
+    MusicGroup save(MusicGroup group);
 }

@@ -41,4 +41,5 @@ public interface UserService {
     UserAdminResponse changeUserRole(Long userId, String newRole, Long currentAdminId) throws Exception;
     void deleteUserByAdmin(Long userId, Long currentAdminId) throws Exception;
     User updateProfileImage(String profileImageUrl) throws Exception;
+    User findUserByEmail(String email) throws Exception;
 }

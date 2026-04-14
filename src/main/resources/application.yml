@@ -9,6 +9,16 @@ spring:
       enabled: true
     schema:
       locations: classpath:graphql/
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+# Cloudinary Configuration (fuera de spring)
+cloudinary:
+  cloud-name: dt1c09ctl
+  api-key: 625814476135463
+  api-secret: 2ekpc09ajttj4KB86PQ9HVvKsws
 
 ---
 spring:
