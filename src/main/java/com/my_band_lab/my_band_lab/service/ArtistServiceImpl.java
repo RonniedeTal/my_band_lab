@@ -335,4 +335,8 @@ public class ArtistServiceImpl implements ArtistService {
         artist.setVerified(true);
         return artistRepository.save(artist);
     }
+    @Override
+    public Artist save(Artist artist) {
+        return artistRepository.save(artist);
+    }
 }

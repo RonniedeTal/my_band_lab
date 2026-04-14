@@ -57,6 +57,9 @@ public class MusicGroup {
 
     private boolean verified;
 
+    @Column(name = "logo_url")
+    private String logoUrl;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

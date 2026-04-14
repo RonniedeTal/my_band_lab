@@ -40,6 +40,12 @@ public class Artist {
 
     private boolean verified;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
+    @Column(name = "logo_url")
+    private String logoUrl;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "artist_instrument",

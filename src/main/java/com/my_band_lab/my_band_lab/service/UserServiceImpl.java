@@ -382,4 +382,10 @@ public class UserServiceImpl implements UserService{
         currentUser.setProfileImageUrl(profileImageUrl);
         return userRepository.save(currentUser);
     }
+    @Override
+    public User findUserByEmail(String email) throws Exception {
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new Exception("User not found with email: " + email));
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.my_band_lab.my_band_lab.service;
 
 import com.my_band_lab.my_band_lab.dto.PageResponse;
+import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.MusicGenre;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.entity.User;
@@ -303,4 +304,12 @@ public class MusicGroupServiceImpl implements MusicGroupService {
         group.setVerified(true);
         return musicGroupRepository.save(group);
     }
+    @Override
+    public MusicGroup save(MusicGroup group) {
+        System.out.println("=== SAVE GROUP ===");
+        System.out.println("Group ID: " + group.getId());
+        System.out.println("Group Name: " + group.getName());
+        return musicGroupRepository.save(group);
+    }
+
 }

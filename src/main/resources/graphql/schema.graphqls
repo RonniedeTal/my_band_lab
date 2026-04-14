@@ -51,6 +51,8 @@ type Artist {
     instruments: [Instrument!]!
     mainInstrument: Instrument
     verified: Boolean!
+    profileImageUrl: String
+    logoUrl: String
     createdAt: String
     updatedAt: String
 }
@@ -64,6 +66,7 @@ type MusicGroup {
     members: [User!]!
     founder: User!
     verified: Boolean!
+    logoUrl: String
     createdAt: String
     updatedAt: String
 }
