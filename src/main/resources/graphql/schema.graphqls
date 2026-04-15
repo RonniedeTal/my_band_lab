@@ -53,6 +53,8 @@ type Artist {
     verified: Boolean!
     profileImageUrl: String
     logoUrl: String
+    songs: [Song!]!
+    albums: [Album!]!
     createdAt: String
     updatedAt: String
 }
@@ -67,6 +69,8 @@ type MusicGroup {
     founder: User!
     verified: Boolean!
     logoUrl: String
+    songs: [Song!]!
+    albums: [Album!]!
     createdAt: String
     updatedAt: String
 }
@@ -183,6 +187,16 @@ type Query {
 
     favoriteGroups(userId: ID!, page: Int, size: Int): MusicGroupPageResponse!
     isFavoriteGroup(userId: ID!, groupId: ID!): Boolean!
+
+    # Song queries
+    songsByArtist(artistId: ID!): [Song!]!
+    songsByGroup(groupId: ID!): [Song!]!
+    songById(id: ID!): Song
+
+    # Estadísticas de reproducción
+    topSongsByArtist(artistId: ID!, limit: Int): [SongStats!]!
+    topSongsByGroup(groupId: ID!, limit: Int): [SongStats!]!
+    songStats(songId: ID!): SongStats!
 }
 
 # ============ MUTATIONS (TODAS JUNTAS) ============
@@ -241,4 +255,42 @@ type Mutation {
 
     addFavoriteGroup(groupId: ID!): FavoriteResponse!
     removeFavoriteGroup(groupId: ID!): FavoriteResponse!
+
+    # Song mutations
+    deleteSong(id: ID!): Boolean!
+    incrementPlayCount(id: ID!): Song!
+    registerPlay(songId: ID!): Boolean!
+}
+# Tipo Song (Canción)
+type Song {
+    id: ID!
+    title: String!
+    duration: Int!
+    fileUrl: String!
+    playCount: Int!
+    artist: Artist
+    musicGroup: MusicGroup
+    albumId: ID
+    createdAt: String!
+    updatedAt: String!
+}
+
+type Album {
+    id: ID!
+    title: String!
+    description: String
+    coverImageUrl: String
+    releaseDate: String
+    artist: Artist
+    musicGroup: MusicGroup
+    songs: [Song!]!
+    createdAt: String!
+    updatedAt: String!
+}
+
+type SongStats {
+    songId: ID!
+    title: String!
+    playCount: Int!
+    uniqueListeners: Int!
 }

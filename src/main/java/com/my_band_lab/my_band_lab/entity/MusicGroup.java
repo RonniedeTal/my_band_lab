@@ -50,6 +50,11 @@ public class MusicGroup {
 
     private List<User> members = new ArrayList<>();
 
+    @OneToMany(mappedBy = "musicGroup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    @JsonIgnore
+    private List<Song> songs = new ArrayList<>();
+
     @OneToOne
     @JoinColumn(name = "founder_id")  // Cambiado de leader_id a founder_id
     @JsonIgnoreProperties({"musicGroups", "foundedGroup", "artist"})
@@ -77,5 +82,9 @@ public class MusicGroup {
         updatedAt = LocalDateTime.now();
     }
 
+    //===================album===========
+    @OneToMany(mappedBy = "musicGroup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Album> albums = new ArrayList<>();
 
 }
