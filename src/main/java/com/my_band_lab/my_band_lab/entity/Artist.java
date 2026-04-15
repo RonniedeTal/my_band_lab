@@ -56,6 +56,13 @@ public class Artist {
     @JsonIgnoreProperties({"artists"})
     private List<Instrument> instruments = new ArrayList<>();
 
+    // ========== RELACIÓN CON CANCIONES ==========
+    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    @JsonIgnore
+    private List<Song> songs = new ArrayList<>();
+    // ===========================================
+
     @Column(name = "main_instrument_id")
     private Long mainInstrumentId; // Instrumento principal (opcional)
 
@@ -75,4 +82,9 @@ public class Artist {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    //================album============
+    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Album> albums = new ArrayList<>();
 }

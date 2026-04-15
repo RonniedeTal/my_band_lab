@@ -148,6 +148,12 @@
 			<artifactId>cloudinary-http45</artifactId>
 			<version>1.35.0</version>
 		</dependency>
+		<!-- Soporte para subida de archivos en GraphQL -->
+		<dependency>
+			<groupId>com.graphql-java</groupId>
+			<artifactId>graphql-java-extended-scalars</artifactId>
+			<version>20.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
