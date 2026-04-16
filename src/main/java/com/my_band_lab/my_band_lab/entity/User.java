@@ -92,5 +92,9 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Playlist> playlists = new ArrayList<>();
+
 
 }
