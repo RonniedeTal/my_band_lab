@@ -294,3 +294,55 @@ type SongStats {
     playCount: Int!
     uniqueListeners: Int!
 }
+
+# ============ PLAYLISTS ============
+
+type Playlist {
+    id: ID!
+    title: String!
+    description: String
+    coverImageUrl: String
+    isPublic: Boolean!
+    user: User!
+    songs: [PlaylistSong!]!
+    songCount: Int!
+    createdAt: String!
+    updatedAt: String!
+}
+
+type PlaylistSong {
+    id: ID!
+    playlist: Playlist!
+    song: Song!
+    position: Int!
+    addedAt: String!
+}
+
+type PlaylistPageResponse {
+    content: [Playlist!]!
+    totalElements: Int!
+    totalPages: Int!
+    currentPage: Int!
+    size: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+}
+
+extend type Query {
+    # Playlist queries
+    myPlaylists(page: Int = 0, size: Int = 10): PlaylistPageResponse!
+    publicPlaylists(page: Int = 0, size: Int = 10): PlaylistPageResponse!
+    searchPublicPlaylists(query: String!, page: Int = 0, size: Int = 10): PlaylistPageResponse!
+    playlistById(id: ID!): Playlist
+    playlistSongs(playlistId: ID!): [PlaylistSong!]!
+}
+
+extend type Mutation {
+    # Playlist mutations
+    createPlaylist(title: String!, description: String, isPublic: Boolean): Playlist!
+    updatePlaylist(id: ID!, title: String, description: String, isPublic: Boolean): Playlist!
+    deletePlaylist(id: ID!): Boolean!
+    addSongToPlaylist(playlistId: ID!, songId: ID!): PlaylistSong!
+    removeSongFromPlaylist(playlistId: ID!, songId: ID!): Boolean!
+    reorderPlaylistSongs(playlistId: ID!, songIds: [ID!]!): Boolean!
+}

@@ -4,8 +4,10 @@ import com.my_band_lab.my_band_lab.dto.LoginRequest;
 import com.my_band_lab.my_band_lab.dto.LoginResponse;
 import com.my_band_lab.my_band_lab.dto.RegisterRequest;
 import com.my_band_lab.my_band_lab.dto.RegisterResponse;
+import com.my_band_lab.my_band_lab.entity.Playlist;
 import com.my_band_lab.my_band_lab.entity.Role;
 import com.my_band_lab.my_band_lab.entity.User;
+import com.my_band_lab.my_band_lab.repository.PlaylistRepository;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
 import com.my_band_lab.my_band_lab.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private PlaylistRepository playlistRepository;
+
     @Override
     public RegisterResponse register(RegisterRequest request) throws Exception {
         // Verificar si el email ya existe
@@ -51,6 +56,13 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         User savedUser = userRepository.save(user);
+        Playlist defaultPlaylist = Playlist.builder()
+                .title("Favoritas")
+                .description("Tus canciones favoritas")
+                .isPublic(false)
+                .user(savedUser)
+                .build();
+        playlistRepository.save(defaultPlaylist);
 
         return RegisterResponse.builder()
                 .id(savedUser.getId())

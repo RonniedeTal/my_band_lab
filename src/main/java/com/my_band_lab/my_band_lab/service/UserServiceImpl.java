@@ -4,10 +4,12 @@ import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.dto.UserAdminResponse;
 import com.my_band_lab.my_band_lab.dto.UserProfileResponse;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
+import com.my_band_lab.my_band_lab.entity.Playlist;
 import com.my_band_lab.my_band_lab.entity.Role;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.repository.ArtistRepository;
 import com.my_band_lab.my_band_lab.repository.MusicGroupRepository;
+import com.my_band_lab.my_band_lab.repository.PlaylistRepository;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +38,22 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private ArtistRepository artistRepository;
+    @Autowired
+    private PlaylistRepository playlistRepository;
 
     //saveUser
     @Override
     public User saveUser(User user) {
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        Playlist defaultPlaylist = Playlist.builder()
+                .title("Favoritas")
+                .description("Tus canciones favoritas")
+                .isPublic(false)
+                .user(savedUser)
+                .build();
+        playlistRepository.save(defaultPlaylist);
+
+        return savedUser;
     }
 
     @Override
@@ -387,5 +400,6 @@ public class UserServiceImpl implements UserService{
         return userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new Exception("User not found with email: " + email));
     }
+
 
 }
