@@ -154,6 +154,18 @@
 			<artifactId>graphql-java-extended-scalars</artifactId>
 			<version>20.2</version>
 		</dependency>
+		<!-- WebPush para notificaciones push -->
+		<dependency>
+			<groupId>nl.martijndwars</groupId>
+			<artifactId>web-push</artifactId>
+			<version>5.1.1</version>
+		</dependency>
+
+		<!-- Para manejo de JSON -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

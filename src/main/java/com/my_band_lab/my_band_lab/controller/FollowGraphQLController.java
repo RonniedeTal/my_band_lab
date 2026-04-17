@@ -7,7 +7,10 @@ import com.my_band_lab.my_band_lab.entity.Artist;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.repository.UserRepository;
+import com.my_band_lab.my_band_lab.service.ArtistService;
 import com.my_band_lab.my_band_lab.service.FollowService;
+import com.my_band_lab.my_band_lab.service.MusicGroupService;
+import com.my_band_lab.my_band_lab.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,18 +29,55 @@ public class FollowGraphQLController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private ArtistService artistService;
+
+    @Autowired
+    private MusicGroupService musicGroupService;
+
     private Long getCurrentUserId() throws Exception {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new Exception("User not found"));
         return user.getId();
     }
+    private User getCurrentUser() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new Exception("User not found"));
+    }
 
-    // Follow mutations
+    // Follow artist
     @MutationMapping
     public FollowResponse followArtist(@Argument Long artistId) throws Exception {
         Long userId = getCurrentUserId();
-        return followService.followArtist(artistId, userId);
+        User currentUser = getCurrentUser();
+        FollowResponse response = followService.followArtist(artistId, userId);
+        if (response.isSuccess()) {
+            Artist artist = artistService.getArtistById(artistId);
+            String followerName = currentUser.getName() + " " + currentUser.getSurname();
+
+            notificationService.createNotification(
+                    artist.getUser().getId(),
+                    "Nuevo seguidor",
+                    followerName + " ha comenzado a seguirte",
+                    "FOLLOW",
+                    artistId
+            );
+
+//            notificationService.sendPushNotification(
+//                    artist.getUser().getId(),
+//                    "Nuevo seguidor",
+//                    followerName + " ha comenzado a seguirte",
+//                    "/artists/" + artistId,
+//                    null
+//            );
+        }
+
+        return response;
     }
 
     @MutationMapping
@@ -65,7 +105,7 @@ public class FollowGraphQLController {
         return followService.getFollowedArtists(userId, pageable);
     }
 
-    // Favorite mutations
+    // Favorite Artist
     @MutationMapping
     public FavoriteResponse addFavoriteArtist(@Argument Long artistId) throws Exception {
         Long userId = getCurrentUserId();
@@ -101,7 +141,31 @@ public class FollowGraphQLController {
     @MutationMapping
     public FollowResponse followGroup(@Argument Long groupId) throws Exception {
         Long userId = getCurrentUserId();
-        return followService.followGroup(groupId, userId);
+        User currentUser = getCurrentUser();
+        FollowResponse response = followService.followGroup(groupId, userId);
+
+        if (response.isSuccess()) {
+            MusicGroup group = musicGroupService.getGroupById(groupId);
+            String followerName = currentUser.getName() + " " + currentUser.getSurname();
+
+            notificationService.createNotification(
+                    group.getFounder().getId(),
+                    "Nuevo seguidor",
+                    followerName + " ha comenzado a seguir tu grupo " + group.getName(),
+                    "FOLLOW",
+                    groupId
+            );
+
+//            notificationService.sendPushNotification(
+//                    group.getFounder().getId(),
+//                    "Nuevo seguidor",
+//                    followerName + " ha comenzado a seguir " + group.getName(),
+//                    "/groups/" + groupId,
+//                    null
+//            );
+        }
+
+        return response;
     }
 
     @MutationMapping
@@ -127,6 +191,7 @@ public class FollowGraphQLController {
         return followService.getFollowedGroups(userId, pageable);
     }
 
+    // ============ FAVORITE GROUP ============
     @MutationMapping
     public FavoriteResponse addFavoriteGroup(@Argument Long groupId) throws Exception {
         Long userId = getCurrentUserId();
