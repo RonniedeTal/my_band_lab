@@ -45,7 +45,7 @@ public class ArtistController {
         log.info("=== CREATE ARTIST REQUEST ===");
         log.info("User: {}", userDetails != null ? userDetails.getUsername() : "null");
         log.info("Request: stageName={}, genre={}, instrumentIds={}",
-                request.getStageName(), request.getGenre(), request.getInstrumentIds());
+                request.getStageName(), request.getGenre(), request.getInstrumentIds(), request.getCountry(), request.getCity());
 
         if (userDetails == null) {
             throw new Exception("User not authenticated");
@@ -56,7 +56,9 @@ public class ArtistController {
                 request.getBiography(),
                 request.getGenre(),
                 request.getInstrumentIds(),
-                request.getMainInstrumentId()
+                request.getMainInstrumentId(),
+                request.getCountry(),
+                request.getCity()
         );
 
         log.info("Artist created: id={}, stageName={}", artist.getId(), artist.getStageName());

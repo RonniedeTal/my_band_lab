@@ -8,7 +8,7 @@ import com.my_band_lab.my_band_lab.entity.User;
 import java.util.List;
 
 public interface MusicGroupService {
-    MusicGroup createGroup(String name, String description, MusicGenre genre, Long founderId) throws Exception;
+    MusicGroup createGroup(String name, String description, MusicGenre genre, Long founderId, String country, String city) throws Exception;
     MusicGroup addMember(Long groupId, Long userId) throws Exception;
     MusicGroup removeMember(Long groupId, Long userId) throws Exception;
     List<User> getGroupMembers(Long groupId) throws Exception;
@@ -18,7 +18,8 @@ public interface MusicGroupService {
     MusicGroup getGroupById(Long id) throws Exception;
     void deleteGroup(Long groupId) throws Exception;
     PageResponse<MusicGroup> getAllGroupsPaginated(int page, int size) throws Exception;
-    PageResponse<MusicGroup> searchGroups(String query, int page, int size) throws Exception;
+    PageResponse<MusicGroup> searchGroups(String query, int page, int size,
+                                          String country, String city, MusicGenre genre) throws Exception;
     List<MusicGroup> getUnverifiedGroups() throws Exception;
     PageResponse<MusicGroup> getUnverifiedGroupsPaginated(int page, int size) throws Exception;
     MusicGroup verifyGroup(Long groupId) throws Exception;

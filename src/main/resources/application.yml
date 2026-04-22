@@ -20,6 +20,9 @@ cloudinary:
   api-key: 625814476135463
   api-secret: 2ekpc09ajttj4KB86PQ9HVvKsws
 
+rapidapi:
+  key: f6a2701a5fmshdd1004af3e626a3p11268bjsnaf350a294020
+
 ---
 spring:
   config:
