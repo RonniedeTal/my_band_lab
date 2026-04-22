@@ -13,4 +13,7 @@ public class CreateArtistRequest {
     private MusicGenre genre;
     private List<Long> instrumentIds;
     private Long mainInstrumentId;
+
+    private String country;     // País de origen
+    private String city;        // Ciudad de origen
 }

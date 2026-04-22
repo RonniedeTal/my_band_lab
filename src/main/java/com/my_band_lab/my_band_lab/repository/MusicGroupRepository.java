@@ -22,4 +22,17 @@ public interface MusicGroupRepository extends JpaRepository<MusicGroup, Long> {
 
     @Query("SELECT mg FROM MusicGroup mg WHERE LOWER(mg.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(mg.description) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<MusicGroup> searchByNameOrDescription(@Param("query") String query, Pageable pageable);
+
+    @Query("SELECT DISTINCT g FROM MusicGroup g WHERE " +
+            "(:query IS NULL OR :query = '' OR " +
+            "LOWER(g.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(g.description) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+            "(:country IS NULL OR :country = '' OR LOWER(g.country) = LOWER(:country)) AND " +
+            "(:city IS NULL OR :city = '' OR LOWER(g.city) = LOWER(:city)) AND " +
+            "(:genre IS NULL OR g.genre = :genre)")
+    Page<MusicGroup> searchWithFilters(@Param("query") String query,
+                                       @Param("country") String country,
+                                       @Param("city") String city,
+                                       @Param("genre") MusicGenre genre,
+                                       Pageable pageable);
 }

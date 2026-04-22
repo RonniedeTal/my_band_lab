@@ -46,6 +46,12 @@ public class Artist {
     @Column(name = "logo_url")
     private String logoUrl;
 
+    @Column(length = 100)
+    private String country;
+
+    @Column(length = 100)
+    private String city;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "artist_instrument",

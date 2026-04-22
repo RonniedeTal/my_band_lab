@@ -2,6 +2,7 @@ package com.my_band_lab.my_band_lab.controller;
 
 import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.Artist;
+import com.my_band_lab.my_band_lab.entity.MusicGenre;
 import com.my_band_lab.my_band_lab.entity.MusicGroup;
 import com.my_band_lab.my_band_lab.service.ArtistService;
 import com.my_band_lab.my_band_lab.service.MusicGroupService;
@@ -62,15 +63,21 @@ public class PublicController {
     public PageResponse<Artist> searchArtists(
             @RequestParam String q,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) throws Exception {
-        return artistService.searchArtists(q, page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) MusicGenre genre) throws Exception {
+        return artistService.searchArtists(q, page, size, country, city, genre);
     }
 
     @GetMapping("/search/groups")
     public PageResponse<MusicGroup> searchGroups(
             @RequestParam String q,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) throws Exception {
-        return musicGroupService.searchGroups(q, page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) MusicGenre genre) throws Exception {
+        return musicGroupService.searchGroups(q, page, size, country, city, genre);
     }
 }

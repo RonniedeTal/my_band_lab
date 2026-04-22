@@ -39,6 +39,12 @@ public class MusicGroup {
     @Column(name = "genre")
     private MusicGenre genre;
 
+    @Column(length = 100)
+    private String country;
+
+    @Column(length = 100)
+    private String city;
+
     @ManyToMany
     @JoinTable(
             name = "group_members",

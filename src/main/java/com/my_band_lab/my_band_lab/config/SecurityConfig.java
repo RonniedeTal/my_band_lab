@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/graphql").permitAll()
                         .requestMatchers("/graphiql").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/countries/**").permitAll()
+//                        .requestMatchers("/api/countries/**").permitAll()
 
                         // Endpoints de administración - solo ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

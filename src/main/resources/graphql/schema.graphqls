@@ -51,6 +51,8 @@ type Artist {
     instruments: [Instrument!]!
     mainInstrument: Instrument
     verified: Boolean!
+    country: String      # ✅ AÑADIR
+    city: String         # ✅ AÑADIR
     profileImageUrl: String
     logoUrl: String
     songs: [Song!]!
@@ -68,6 +70,8 @@ type MusicGroup {
     members: [User!]!
     founder: User!
     verified: Boolean!
+    country: String      # ✅ AÑADIR
+    city: String         # ✅ AÑADIR
     logoUrl: String
     songs: [Song!]!
     albums: [Album!]!
@@ -171,8 +175,8 @@ type Query {
     musicGroupsPaginated(page: Int = 0, size: Int = 10): MusicGroupPageResponse!
 
     # Search queries
-    searchArtists(query: String!, page: Int = 0, size: Int = 10): ArtistPageResponse!
-    searchGroups(query: String!, page: Int = 0, size: Int = 10): MusicGroupPageResponse!
+    searchArtists(query: String!, page: Int = 0, size: Int = 10, country: String, city: String,  genre: MusicGenre): ArtistPageResponse!
+    searchGroups(query: String!, page: Int = 0, size: Int = 10, country: String, city: String, genre: MusicGenre): MusicGroupPageResponse!
 
     # Follow queries
     followedArtists(userId: ID!, page: Int, size: Int): ArtistPageResponse!
@@ -214,6 +218,8 @@ type Mutation {
         genre: MusicGenre!
         instrumentIds: [ID!]!
         mainInstrumentId: ID
+        country: String      # ✅ AÑADIR
+        city: String         # ✅ AÑADIR
     ): Artist!
     updateArtist(id: ID!, stageName: String, biography: String, genre: MusicGenre): Artist!
     deleteArtist(id: ID!): Boolean!
@@ -226,10 +232,12 @@ type Mutation {
         genre: MusicGenre!
         instrumentIds: [ID!]!
         mainInstrumentId: ID
+        country: String      # ✅ AÑADIR
+        city: String         # ✅ AÑADIR
     ): Artist!
 
     # MusicGroup mutations
-    createMusicGroup(name: String!, description: String, genre: MusicGenre!, founderId: ID!): MusicGroup!
+    createMusicGroup(name: String!, description: String, genre: MusicGenre!, founderId: ID!, country: String, city: String ): MusicGroup!
     addMemberToGroup(groupId: ID!, userId: ID!): MusicGroup!
     removeMemberFromGroup(groupId: ID!, userId: ID!): MusicGroup!
     updateMusicGroupGenre(groupId: ID!, genre: MusicGenre!): MusicGroup!

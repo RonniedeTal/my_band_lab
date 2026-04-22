@@ -27,4 +27,18 @@ public interface ArtistRepository extends JpaRepository<Artist, Long> {
 
     @Query("SELECT a FROM Artist a WHERE LOWER(a.stageName) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(a.user.name) LIKE LOWER(CONCAT('%', :query, '%'))")
     Page<Artist> searchByNameOrStageName(@Param("query") String query, Pageable pageable);
+
+    @Query("SELECT a FROM Artist a WHERE " +
+            "(:query IS NULL OR :query = '' OR " +
+            "LOWER(a.stageName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(a.user.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(a.user.surname) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+            "(:country IS NULL OR :country = '' OR LOWER(a.country) = LOWER(:country)) AND " +
+            "(:city IS NULL OR :city = '' OR LOWER(a.city) = LOWER(:city)) AND " +
+            "(:genre IS NULL OR a.genre = :genre)")
+    Page<Artist> searchWithFilters(@Param("query") String query,
+                                   @Param("country") String country,
+                                   @Param("city") String city,
+                                   @Param("genre") MusicGenre genre,
+                                   Pageable pageable);
 }

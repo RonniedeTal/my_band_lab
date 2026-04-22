@@ -31,7 +31,7 @@ public class MusicGroupServiceImpl implements MusicGroupService {
 
     @Override
     @Transactional
-    public MusicGroup createGroup(String name, String description, MusicGenre genre, Long founderId) throws Exception {
+    public MusicGroup createGroup(String name, String description, MusicGenre genre, Long founderId, String country, String city) throws Exception {
         System.out.println("=== CREATE GROUP DEBUG ===");
         System.out.println("1. Name: " + name);
         System.out.println("2. Genre: " + genre);
@@ -73,6 +73,8 @@ public class MusicGroupServiceImpl implements MusicGroupService {
                     .description(description)
                     .genre(genre)
                     .founder(founder)
+                    .country(country)      // ✅ AÑADIR
+                    .city(city)            // ✅ AÑADIR
                     .verified(false)
                     .build();
 
@@ -243,9 +245,46 @@ public class MusicGroupServiceImpl implements MusicGroupService {
                 .build();
     }
     @Override
-    public PageResponse<MusicGroup> searchGroups(String query, int page, int size) throws Exception {
+    public PageResponse<MusicGroup> searchGroups(String query, int page, int size,
+                                                 String country, String city, MusicGenre genre) throws Exception {
         Pageable pageable = PageRequest.of(page, size);
-        Page<MusicGroup> groupPage = musicGroupRepository.searchByNameOrDescription(query, pageable);
+        Page<MusicGroup> groupPage;
+
+        System.out.println("=== BÚSQUEDA DE GRUPOS ===");
+        System.out.println("Query original: '" + query + "'");
+        System.out.println("Country recibido: '" + country + "'");
+        System.out.println("City recibida: '" + city + "'");
+        System.out.println("Genre recibido: " + genre);
+
+        // Normalizar query: si es "*" o null o vacío, usar null
+        String normalizedQuery = null;
+        if (query != null && !query.trim().isEmpty() && !"*".equals(query.trim())) {
+            normalizedQuery = query.trim();
+        }
+
+        // Normalizar country y city
+        String normalizedCountry = (country != null && !country.trim().isEmpty()) ? country.trim() : null;
+        String normalizedCity = (city != null && !city.trim().isEmpty()) ? city.trim() : null;
+
+        System.out.println("Query final: '" + normalizedQuery + "'");
+        System.out.println("Country final: " + normalizedCountry);
+        System.out.println("City final: " + normalizedCity);
+
+        // Siempre usar searchWithFilters
+        groupPage = musicGroupRepository.searchWithFilters(
+                normalizedQuery,
+                normalizedCountry,
+                normalizedCity,
+                genre,
+                pageable
+        );
+
+        System.out.println("✅ Resultados encontrados: " + groupPage.getTotalElements());
+        groupPage.getContent().forEach(group -> {
+            System.out.println("  - " + group.getName() +
+                    " (País: " + group.getCountry() +
+                    ", Ciudad: " + group.getCity() + ")");
+        });
 
         return PageResponse.<MusicGroup>builder()
                 .content(groupPage.getContent())

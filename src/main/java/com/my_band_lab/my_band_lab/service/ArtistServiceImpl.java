@@ -208,9 +208,48 @@ public class ArtistServiceImpl implements ArtistService {
                 .build();
     }
     @Override
-    public PageResponse<Artist> searchArtists(String query, int page, int size) throws Exception {
+    public PageResponse<Artist> searchArtists(String query, int page, int size,
+                                              String country, String city, MusicGenre genre) throws Exception {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Artist> artistPage = artistRepository.searchByNameOrStageName(query, pageable);
+        Page<Artist> artistPage;
+
+        // Log para depuración
+        System.out.println("=== BÚSQUEDA DE ARTISTAS ===");
+        System.out.println("Query original: '" + query + "'");
+        System.out.println("Country recibido: '" + country + "'");
+        System.out.println("City recibida: '" + city + "'");
+        System.out.println("Genre recibido: " + genre);
+
+        // Normalizar query: si es "*" o vacío, usar null
+        String normalizedQuery = query;
+        if (query == null || query.trim().isEmpty() || "*".equals(query.trim())) {
+            normalizedQuery = "";
+            System.out.println("Query normalizada a vacío para búsqueda amplia");
+        }
+
+        // Normalizar country y city
+        String normalizedCountry = (country != null && !country.trim().isEmpty()) ? country : null;
+        String normalizedCity = (city != null && !city.trim().isEmpty()) ? city : null;
+
+        System.out.println("Query final: '" + normalizedQuery + "'");
+        System.out.println("Country final: " + normalizedCountry);
+        System.out.println("City final: " + normalizedCity);
+
+        // Siempre usar searchWithFilters, pero con valores null apropiados
+        artistPage = artistRepository.searchWithFilters(
+                normalizedQuery,
+                normalizedCountry,
+                normalizedCity,
+                genre,
+                pageable
+        );
+
+        System.out.println("✅ Resultados encontrados: " + artistPage.getTotalElements());
+        artistPage.getContent().forEach(artist -> {
+            System.out.println("  - " + artist.getStageName() +
+                    " (País: " + artist.getCountry() +
+                    ", Ciudad: " + artist.getCity() + ")");
+        });
 
         return PageResponse.<Artist>builder()
                 .content(artistPage.getContent())
@@ -226,7 +265,7 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     @Transactional
     public Artist createArtistForCurrentUser(String stageName, String biography, MusicGenre genre,
-                                             List<Long> instrumentIds, Long mainInstrumentId) throws Exception {
+                                             List<Long> instrumentIds, Long mainInstrumentId, String country, String city) throws Exception {
 
         // Obtener usuario autenticado
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -255,6 +294,8 @@ public class ArtistServiceImpl implements ArtistService {
                 .stageName(stageName)
                 .biography(biography)
                 .genre(genre)
+                .country(country)
+                .city(city)
                 .verified(false)
                 .build();
 

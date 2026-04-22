@@ -177,17 +177,19 @@ public class UserGraphQLController {
             @Argument String biography,
             @Argument MusicGenre genre,
             @Argument List<Long> instrumentIds,
-            @Argument Long mainInstrumentId) throws Exception {
+            @Argument Long mainInstrumentId,
+            @Argument String country,
+            @Argument String city) throws Exception {
 
         return artistService.createArtistForCurrentUser(
-                stageName, biography, genre, instrumentIds, mainInstrumentId);
+                stageName, biography, genre, instrumentIds, mainInstrumentId, country, city);
     }
 
     // MusicGroup Mutations
     @MutationMapping
     public MusicGroup createMusicGroup(@Argument String name, @Argument String description,
-                                       @Argument MusicGenre genre, @Argument Long founderId) throws Exception {
-        return musicGroupService.createGroup(name, description, genre, founderId);
+                                       @Argument MusicGenre genre, @Argument Long founderId, @Argument String country,@Argument String city) throws Exception {
+        return musicGroupService.createGroup(name, description, genre, founderId, country, city);
     }
 
     @MutationMapping
@@ -257,15 +259,21 @@ public class UserGraphQLController {
     public PageResponse<Artist> searchArtists(
             @Argument String query,
             @Argument int page,
-            @Argument int size) throws Exception {
-        return artistService.searchArtists(query, page, size);
+            @Argument int size,
+            @Argument String country,
+            @Argument String city,
+            @Argument MusicGenre genre) throws Exception {
+        return artistService.searchArtists(query, page, size, country, city, genre);
     }
 
     @QueryMapping
     public PageResponse<MusicGroup> searchGroups(
             @Argument String query,
             @Argument int page,
-            @Argument int size) throws Exception {
-        return musicGroupService.searchGroups(query, page, size);
+            @Argument int size,
+            @Argument String country,
+            @Argument String city,
+            @Argument MusicGenre genre) throws Exception {
+        return musicGroupService.searchGroups(query, page, size, country, city, genre);
     }
 }

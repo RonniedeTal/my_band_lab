@@ -33,9 +33,10 @@ public interface ArtistService {
     List<Artist> getArtistsByInstrument(Long instrumentId) throws Exception;
 
     PageResponse<Artist> getAllArtistsPaginated(int page, int size) throws Exception;
-    PageResponse<Artist> searchArtists(String query, int page, int size) throws Exception;
+    PageResponse<Artist> searchArtists(String query, int page, int size,
+                                       String country, String city, MusicGenre genre) throws Exception;
     Artist createArtistForCurrentUser(String stageName, String biography, MusicGenre genre,
-                                      List<Long> instrumentIds, Long mainInstrumentId) throws Exception;
+                                      List<Long> instrumentIds, Long mainInstrumentId, String country, String city) throws Exception;
     List<Artist> getUnverifiedArtists() throws Exception;
     PageResponse<Artist> getUnverifiedArtistsPaginated(int page, int size) throws Exception;
     Artist verifyArtist(Long artistId) throws Exception;

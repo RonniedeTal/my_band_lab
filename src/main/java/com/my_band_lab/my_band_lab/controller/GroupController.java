@@ -49,14 +49,16 @@ public class GroupController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam String name,
             @RequestParam(required = false) String description,
-            @RequestParam MusicGenre genre) throws Exception {
+            @RequestParam MusicGenre genre,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city) throws Exception {
 
         if (userDetails == null) {
             throw new Exception("User not authenticated");
         }
 
         // Pasamos null como founderId, el servicio obtendrá el usuario autenticado
-        return musicGroupService.createGroup(name, description, genre, null);
+        return musicGroupService.createGroup(name, description, genre, null, country, city  );
     }
 
     @PostMapping("/{groupId}/members/{userId}")
