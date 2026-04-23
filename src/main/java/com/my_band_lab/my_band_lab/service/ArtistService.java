@@ -42,4 +42,12 @@ public interface ArtistService {
     Artist verifyArtist(Long artistId) throws Exception;
     Artist save(Artist artist);
 
+    Artist updateLookingForBandStatus(Long artistId, boolean isLookingForBand) throws Exception;
+
+    boolean getLookingForBandStatus(Long artistId) throws Exception;
+
+    List<Artist> getArtistsLookingForBand();
+
+
+
 }

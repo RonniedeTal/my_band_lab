@@ -4,6 +4,8 @@ import com.my_band_lab.my_band_lab.dto.CreateArtistRequest;
 import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.*;
 import com.my_band_lab.my_band_lab.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Controller
 public class UserGraphQLController {
+
+    private static final Logger log = LoggerFactory.getLogger(UserGraphQLController.class);
 
     @Autowired
     private UserService userService;
@@ -275,5 +279,19 @@ public class UserGraphQLController {
             @Argument String city,
             @Argument MusicGenre genre) throws Exception {
         return musicGroupService.searchGroups(query, page, size, country, city, genre);
+    }
+
+    @QueryMapping
+    public List<Artist> artistsLookingForBand() {
+        log.info("=== GraphQL Query: artistsLookingForBand ===");
+        try {
+            List<Artist> artists = artistService.getArtistsLookingForBand();
+            log.info("Artistas encontrados: {}", artists.size());
+            // Devolver lista vacía en lugar de null
+            return artists != null ? artists : new ArrayList<>();
+        } catch (Exception e) {
+            log.error("Error en artistsLookingForBand: {}", e.getMessage());
+            return new ArrayList<>(); // Nunca devolver null
+        }
     }
 }

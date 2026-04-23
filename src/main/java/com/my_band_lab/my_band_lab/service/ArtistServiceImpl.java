@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -116,10 +117,11 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     public List<Artist> getAllArtists() throws Exception {
         List<Artist> artists = artistRepository.findAll();
-        if (artists.isEmpty()) {
-            throw new Exception("No artists found");
-        }
-        return artists;
+//        if (artists.isEmpty()) {
+//            throw new Exception("No artists found");
+//        }
+//        return artists;
+        return artists != null ? artists : new ArrayList<>();
     }
 
     @Override
@@ -179,6 +181,19 @@ public class ArtistServiceImpl implements ArtistService {
         return artist.getInstruments();
     }
 
+//    @Override
+//    public List<Artist> getArtistsByInstrument(Long instrumentId) throws Exception {
+//        // Verificar que el instrumento existe
+//        Instrument instrument = instrumentRepository.findById(instrumentId)
+//                .orElseThrow(() -> new Exception("Instrument not found with id: " + instrumentId));
+//
+//        // Buscar artistas que tocan ese instrumento
+//        List<Artist> artists = artistRepository.findByInstrumentId(instrumentId);
+//
+//        // Devolver lista vacía si no hay resultados (nunca null)
+//        return artists != null ? artists : new ArrayList<>();
+//    }
+
     @Override
     public List<Artist> getArtistsByInstrument(Long instrumentId) throws Exception {
         // Verificar que el instrumento existe
@@ -188,7 +203,7 @@ public class ArtistServiceImpl implements ArtistService {
         // Buscar artistas que tocan ese instrumento
         List<Artist> artists = artistRepository.findByInstrumentId(instrumentId);
 
-        // Devolver lista vacía si no hay resultados (nunca null)
+        // ✅ Devolver lista vacía si no hay resultados
         return artists != null ? artists : new ArrayList<>();
     }
 
@@ -380,4 +395,66 @@ public class ArtistServiceImpl implements ArtistService {
     public Artist save(Artist artist) {
         return artistRepository.save(artist);
     }
+
+    @Override
+    @Transactional
+    public Artist updateLookingForBandStatus(Long artistId, boolean isLookingForBand) throws Exception {
+        log.info("Actualizando estado isLookingForBand para artista {}: {}", artistId, isLookingForBand);
+
+        Artist artist = getArtistById(artistId);
+
+        // Verificar que el artista pertenece al usuario autenticado
+        User currentUser = getCurrentUser();
+        if (!artist.getUser().getId().equals(currentUser.getId())) {
+            throw new Exception("No tienes permiso para modificar este artista");
+        }
+
+        artist.setLookingForBand(isLookingForBand);
+        artist.setUpdatedAt(LocalDateTime.now());
+
+        Artist saved = artistRepository.save(artist);
+        log.info("Estado actualizado correctamente. Nuevo estado: {}", saved.isLookingForBand());
+
+        return saved;
+    }
+
+
+    @Override
+    public boolean getLookingForBandStatus(Long artistId) throws Exception {
+        log.info("Obteniendo estado isLookingForBand para artista {}", artistId);
+
+        Artist artist = getArtistById(artistId);
+        boolean status = artist.isLookingForBand();
+
+        log.info("Estado actual: {}", status);
+        return status;
+    }
+
+    private User getCurrentUser() throws Exception {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!(principal instanceof UserDetails)) {
+            throw new Exception("Usuario no autenticado");
+        }
+
+        String email = ((UserDetails) principal).getUsername();
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new Exception("Usuario no encontrado"));
+    }
+
+    @Override
+    public List<Artist> getArtistsLookingForBand() {
+        log.info("Buscando artistas que buscan banda...");
+        try {
+            List<Artist> artists = artistRepository.findByIsLookingForBandTrue();
+            log.info("Encontrados: {} artistas", artists != null ? artists.size() : 0);
+            return artists != null ? artists : new ArrayList<>();
+        } catch (Exception e) {
+            log.error("Error al buscar artistas: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+
 }
+
