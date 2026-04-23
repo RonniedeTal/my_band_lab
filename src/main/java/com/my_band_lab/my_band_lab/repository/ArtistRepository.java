@@ -41,4 +41,6 @@ public interface ArtistRepository extends JpaRepository<Artist, Long> {
                                    @Param("city") String city,
                                    @Param("genre") MusicGenre genre,
                                    Pageable pageable);
+
+    List<Artist> findByIsLookingForBandTrue();
 }

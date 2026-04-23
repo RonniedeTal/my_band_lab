@@ -52,6 +52,10 @@ public class Artist {
     @Column(length = 100)
     private String city;
 
+    @Column(name = "is_looking_for_band")
+    @Builder.Default
+    private boolean isLookingForBand = false;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "artist_instrument",

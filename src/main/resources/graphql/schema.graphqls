@@ -57,6 +57,7 @@ type Artist {
     logoUrl: String
     songs: [Song!]!
     albums: [Album!]!
+    isLookingForBand: Boolean!
     createdAt: String
     updatedAt: String
 }
@@ -155,6 +156,7 @@ type Query {
     artistById(id: ID!): Artist
     artistByUserId(userId: ID!): Artist
     artistsByGenre(genre: MusicGenre!): [Artist!]!
+    artistsLookingForBand: [Artist!]!
 
     # MusicGroup queries
     musicGroups: [MusicGroup!]!
