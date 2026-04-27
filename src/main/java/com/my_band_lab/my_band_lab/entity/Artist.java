@@ -56,6 +56,10 @@ public class Artist {
     @Builder.Default
     private boolean isLookingForBand = false;
 
+    @Column(name = "looking_for_instrument_ids")
+    @Builder.Default
+    private List<Long> lookingForInstrumentIds = new ArrayList<>();
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "artist_instrument",

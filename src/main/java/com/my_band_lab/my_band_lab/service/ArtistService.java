@@ -48,6 +48,6 @@ public interface ArtistService {
 
     List<Artist> getArtistsLookingForBand();
 
-
+    Artist updateLookingForInstruments(Long artistId, List<Long> instrumentIds) throws Exception;
 
 }
