@@ -2,6 +2,7 @@ package com.my_band_lab.my_band_lab.controller;
 
 import com.my_band_lab.my_band_lab.dto.*;
 import com.my_band_lab.my_band_lab.entity.Artist;
+import com.my_band_lab.my_band_lab.repository.InstrumentRepository;
 import com.my_band_lab.my_band_lab.entity.Instrument;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.service.ArtistService;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
+
 
 
 import java.io.IOException;
@@ -42,6 +44,9 @@ public class ArtistController {
 
     @Autowired
     private MusicGroupService musicGroupService;
+
+    @Autowired
+    private InstrumentRepository instrumentRepository;
 
     private static final Logger log = LoggerFactory.getLogger(ArtistController.class);
 
@@ -418,6 +423,134 @@ public class ArtistController {
 
         } catch (Exception e) {
             log.error("Error al obtener artistas: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ========== LOOKING FOR INSTRUMENTS - ENDPOINTS ==========
+
+    /**
+     * PUT /api/artists/looking-for-band/instruments
+     * Guardar los instrumentos que el artista puede tocar
+     */
+    @PutMapping("/looking-for-band/instruments")
+    public ResponseEntity<?> updateLookingForInstruments(
+            @RequestBody LookingForInstrumentsRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        log.info("=== PUT /api/artists/looking-for-band/instruments ===");
+        log.info("Instrument IDs: {}", request.getInstrumentIds());
+
+        if (request.getInstrumentIds() == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Falta el campo instrumentIds"));
+        }
+
+        try {
+            // Obtener usuario autenticado
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Usuario no autenticado"));
+            }
+
+            String email = userDetails.getUsername();
+            User user = userService.findUserByEmail(email);
+
+            if (user == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Usuario no encontrado"));
+            }
+
+            Artist artist = artistService.getArtistByUserId(user.getId());
+
+            if (artist == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No tienes un perfil de artista"));
+            }
+
+            // Validar que los instrumentos existen
+            List<Instrument> validInstruments = new ArrayList<>();
+            for (Long instrumentId : request.getInstrumentIds()) {
+                Instrument instrument = instrumentRepository.findById(instrumentId)
+                        .orElseThrow(() -> new Exception("Instrumento no encontrado: " + instrumentId));
+                validInstruments.add(instrument);
+            }
+
+            // Guardar los IDs de instrumentos
+            artist.setLookingForInstrumentIds(request.getInstrumentIds());
+            artistService.save(artist);
+
+            // Construir respuesta
+            List<LookingForInstrumentsResponse.InstrumentDTO> instrumentDTOs = validInstruments.stream()
+                    .map(instr -> LookingForInstrumentsResponse.InstrumentDTO.builder()
+                            .id(instr.getId())
+                            .name(instr.getName())
+                            .category(instr.getCategory())
+                            .build())
+                    .collect(Collectors.toList());
+
+            LookingForInstrumentsResponse response = LookingForInstrumentsResponse.builder()
+                    .instruments(instrumentDTOs)
+                    .count(instrumentDTOs.size())
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * GET /api/artists/looking-for-band/instruments
+     * Obtener los instrumentos que el artista puede tocar
+     */
+    @GetMapping("/looking-for-band/instruments")
+    public ResponseEntity<?> getLookingForInstruments(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        log.info("=== GET /api/artists/looking-for-band/instruments ===");
+
+        try {
+            if (userDetails == null) {
+                return ResponseEntity.ok(Map.of("instruments", new ArrayList<>(), "count", 0));
+            }
+
+            String email = userDetails.getUsername();
+            User user = userService.findUserByEmail(email);
+
+            if (user == null) {
+                return ResponseEntity.ok(Map.of("instruments", new ArrayList<>(), "count", 0));
+            }
+
+            Artist artist = artistService.getArtistByUserId(user.getId());
+
+            if (artist == null || artist.getLookingForInstrumentIds() == null ||
+                    artist.getLookingForInstrumentIds().isEmpty()) {
+                return ResponseEntity.ok(Map.of("instruments", new ArrayList<>(), "count", 0));
+            }
+
+            // Obtener instrumentos por IDs
+            List<Instrument> instruments = instrumentRepository.findAllById(artist.getLookingForInstrumentIds());
+
+            List<LookingForInstrumentsResponse.InstrumentDTO> instrumentDTOs = instruments.stream()
+                    .map(instr -> LookingForInstrumentsResponse.InstrumentDTO.builder()
+                            .id(instr.getId())
+                            .name(instr.getName())
+                            .category(instr.getCategory())
+                            .build())
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(Map.of(
+                    "instruments", instrumentDTOs,
+                    "count", instrumentDTOs.size()
+            ));
+
+        } catch (Exception e) {
+            log.error("Error: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }

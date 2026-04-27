@@ -3,6 +3,7 @@ package com.my_band_lab.my_band_lab.controller;
 import com.my_band_lab.my_band_lab.dto.CreateArtistRequest;
 import com.my_band_lab.my_band_lab.dto.PageResponse;
 import com.my_band_lab.my_band_lab.entity.*;
+import com.my_band_lab.my_band_lab.repository.InstrumentRepository;
 import com.my_band_lab.my_band_lab.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,9 @@ public class UserGraphQLController {
 
     @Autowired
     private GenreService genreService;
+
+    @Autowired
+    private InstrumentRepository instrumentRepository;
 
     // User Queries
     @QueryMapping
@@ -72,7 +77,12 @@ public class UserGraphQLController {
 
     @QueryMapping
     public Artist artistByUserId(@Argument Long userId) throws Exception {
-        return artistService.getArtistByUserId(userId);
+        try {
+            return artistService.getArtistByUserId(userId);
+        } catch (Exception e) {
+            log.error("Artist not found for userId: {}", userId);
+            return null;  // 👈 Devolver null, no lanzar excepción
+        }
     }
 
     @QueryMapping
@@ -293,5 +303,62 @@ public class UserGraphQLController {
             log.error("Error en artistsLookingForBand: {}", e.getMessage());
             return new ArrayList<>(); // Nunca devolver null
         }
+    }
+
+    // ========== LOOKING FOR INSTRUMENTS - GRAPHQL ==========
+
+    /**
+     * Query resolver para obtener los instrumentos que el artista busca tocar
+     */
+    @SchemaMapping(typeName = "Artist", field = "lookingForInstruments")
+    public List<Instrument> lookingForInstruments(Artist artist) {
+        log.info("=== GraphQL SchemaMapping: lookingForInstruments for artistId: {} ===", artist.getId());
+
+        try {
+            if (artist == null) {
+                log.warn("Artist is null");
+                return new ArrayList<>();
+            }
+
+            List<Long> instrumentIds = artist.getLookingForInstrumentIds();
+            log.info("Instrument IDs from artist: {}", instrumentIds);
+
+            if (instrumentIds == null || instrumentIds.isEmpty()) {
+                log.info("No instrument IDs found for artist {}", artist.getId());
+                return new ArrayList<>();
+            }
+
+            List<Instrument> instruments = instrumentRepository.findAllById(instrumentIds);
+            log.info("Found {} instruments", instruments != null ? instruments.size() : 0);
+
+            return instruments != null ? instruments : new ArrayList<>();
+
+        } catch (Exception e) {
+            log.error("Error in lookingForInstruments: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+    /**
+     * Mutation resolver para actualizar los instrumentos que el artista busca tocar
+     */
+    @MutationMapping
+    public Artist updateLookingForInstruments(
+            @Argument Long artistId,
+            @Argument List<Long> instrumentIds) throws Exception {
+
+        log.info("=== GraphQL Mutation: updateLookingForInstruments ===");
+        log.info("ArtistId: {}, InstrumentIds: {}", artistId, instrumentIds);
+
+        // Validar que los instrumentos existen
+        if (instrumentIds != null && !instrumentIds.isEmpty()) {
+            for (Long instrumentId : instrumentIds) {
+                boolean exists = instrumentRepository.existsById(instrumentId);
+                if (!exists) {
+                    throw new Exception("Instrument not found with id: " + instrumentId);
+                }
+            }
+        }
+
+        return artistService.updateLookingForInstruments(artistId, instrumentIds);
     }
 }

@@ -454,7 +454,24 @@ public class ArtistServiceImpl implements ArtistService {
             return new ArrayList<>();
         }
     }
+    @Override
+    @Transactional
+    public Artist updateLookingForInstruments(Long artistId, List<Long> instrumentIds) throws Exception {
+        log.info("Actualizando instrumentos buscados para artista {}: {}", artistId, instrumentIds);
 
+        Artist artist = getArtistById(artistId);
+
+        // Verificar permisos (el artista pertenece al usuario autenticado)
+        User currentUser = getCurrentUser();
+        if (!artist.getUser().getId().equals(currentUser.getId())) {
+            throw new Exception("No tienes permiso para modificar este artista");
+        }
+
+        artist.setLookingForInstrumentIds(instrumentIds);
+        artist.setUpdatedAt(LocalDateTime.now());
+
+        return artistRepository.save(artist);
+    }
 
 }
 

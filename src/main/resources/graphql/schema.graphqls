@@ -58,6 +58,7 @@ type Artist {
     songs: [Song!]!
     albums: [Album!]!
     isLookingForBand: Boolean!
+    lookingForInstruments: [Instrument!]
     createdAt: String
     updatedAt: String
 }
@@ -355,4 +356,5 @@ extend type Mutation {
     addSongToPlaylist(playlistId: ID!, songId: ID!): PlaylistSong!
     removeSongFromPlaylist(playlistId: ID!, songId: ID!): Boolean!
     reorderPlaylistSongs(playlistId: ID!, songIds: [ID!]!): Boolean!
+    updateLookingForInstruments(artistId: ID!, instrumentIds: [ID!]!): Artist!
 }
