@@ -473,5 +473,29 @@ public class ArtistServiceImpl implements ArtistService {
         return artistRepository.save(artist);
     }
 
+    @Override
+    @Transactional
+    public Artist updateLookingForGenres(Long artistId, List<String> genres) throws Exception {
+        log.info("Actualizando géneros buscados para artista {}: {}", artistId, genres);
+
+        Artist artist = getArtistById(artistId);
+
+        User currentUser = getCurrentUser();
+        if (!artist.getUser().getId().equals(currentUser.getId())) {
+            throw new Exception("No tienes permiso para modificar este artista");
+        }
+
+        artist.setLookingForGenres(genres);
+        artist.setUpdatedAt(LocalDateTime.now());
+
+        return artistRepository.save(artist);
+    }
+
+    @Override
+    public List<String> getLookingForGenres(Long artistId) throws Exception {
+        Artist artist = getArtistById(artistId);
+        return artist.getLookingForGenres() != null ? artist.getLookingForGenres() : new ArrayList<>();
+    }
+
 }
 

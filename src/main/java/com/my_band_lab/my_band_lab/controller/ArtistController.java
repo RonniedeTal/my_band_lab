@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
+import com.my_band_lab.my_band_lab.entity.MusicGenre;
 
 
 
@@ -395,6 +396,7 @@ public class ArtistController {
                 map.put("city", artist.getCity());
                 map.put("country", artist.getCountry());
                 map.put("lookingForBand", artist.isLookingForBand());
+                map.put("lookingForGenres", artist.getLookingForGenres());
                 map.put("profileImageUrl", artist.getProfileImageUrl());
                 map.put("verified", artist.isVerified());
 
@@ -547,6 +549,115 @@ public class ArtistController {
             return ResponseEntity.ok(Map.of(
                     "instruments", instrumentDTOs,
                     "count", instrumentDTOs.size()
+            ));
+
+        } catch (Exception e) {
+            log.error("Error: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ========== LOOKING FOR GENRES - ENDPOINTS ==========
+
+    /**
+     * PUT /api/artists/looking-for-band/genres
+     * Guardar los géneros musicales que el artista busca
+     */
+    @PutMapping("/looking-for-band/genres")
+    public ResponseEntity<?> updateLookingForGenres(
+            @RequestBody LookingForGenresRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        log.info("=== PUT /api/artists/looking-for-band/genres ===");
+        log.info("Genres: {}", request.getGenres());
+
+        if (request.getGenres() == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Falta el campo genres"));
+        }
+
+        try {
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Usuario no autenticado"));
+            }
+
+            String email = userDetails.getUsername();
+            User user = userService.findUserByEmail(email);
+
+            if (user == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Usuario no encontrado"));
+            }
+
+            Artist artist = artistService.getArtistByUserId(user.getId());
+
+            if (artist == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No tienes un perfil de artista"));
+            }
+
+            // Validar que los géneros existen en el enum
+            List<String> validGenres = new ArrayList<>();
+            for (String genre : request.getGenres()) {
+                try {
+                    MusicGenre.valueOf(genre);
+                    validGenres.add(genre);
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("error", "Género inválido: " + genre));
+                }
+            }
+
+            artist.setLookingForGenres(validGenres);
+            artistService.save(artist);
+
+            LookingForGenresResponse response = LookingForGenresResponse.builder()
+                    .genres(validGenres)
+                    .count(validGenres.size())
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * GET /api/artists/looking-for-band/genres
+     * Obtener los géneros musicales que el artista busca
+     */
+    @GetMapping("/looking-for-band/genres")
+    public ResponseEntity<?> getLookingForGenres(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        log.info("=== GET /api/artists/looking-for-band/genres ===");
+
+        try {
+            if (userDetails == null) {
+                return ResponseEntity.ok(Map.of("genres", new ArrayList<>(), "count", 0));
+            }
+
+            String email = userDetails.getUsername();
+            User user = userService.findUserByEmail(email);
+
+            if (user == null) {
+                return ResponseEntity.ok(Map.of("genres", new ArrayList<>(), "count", 0));
+            }
+
+            Artist artist = artistService.getArtistByUserId(user.getId());
+
+            if (artist == null || artist.getLookingForGenres() == null) {
+                return ResponseEntity.ok(Map.of("genres", new ArrayList<>(), "count", 0));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "genres", artist.getLookingForGenres(),
+                    "count", artist.getLookingForGenres().size()
             ));
 
         } catch (Exception e) {
