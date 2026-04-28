@@ -50,4 +50,7 @@ public interface ArtistService {
 
     Artist updateLookingForInstruments(Long artistId, List<Long> instrumentIds) throws Exception;
 
+    Artist updateLookingForGenres(Long artistId, List<String> genres) throws Exception;
+    List<String> getLookingForGenres(Long artistId) throws Exception;
+
 }

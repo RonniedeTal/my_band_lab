@@ -60,6 +60,11 @@ public class Artist {
     @Builder.Default
     private List<Long> lookingForInstrumentIds = new ArrayList<>();
 
+    @Column(name = "looking_for_genres")
+    @Builder.Default
+    private List<String> lookingForGenres = new ArrayList<>();
+
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "artist_instrument",

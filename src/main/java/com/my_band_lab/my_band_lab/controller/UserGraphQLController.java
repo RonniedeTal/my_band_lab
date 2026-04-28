@@ -361,4 +361,36 @@ public class UserGraphQLController {
 
         return artistService.updateLookingForInstruments(artistId, instrumentIds);
     }
+
+    @SchemaMapping(typeName = "Artist", field = "lookingForGenres")
+    public List<String> lookingForGenres(Artist artist) {
+        log.info("=== GraphQL SchemaMapping: lookingForGenres for artistId: {} ===", artist.getId());
+
+        if (artist == null || artist.getLookingForGenres() == null) {
+            return new ArrayList<>();
+        }
+        return artist.getLookingForGenres();
+    }
+
+    @MutationMapping
+    public Artist updateLookingForGenres(
+            @Argument Long artistId,
+            @Argument List<String> genres) throws Exception {
+
+        log.info("=== GraphQL Mutation: updateLookingForGenres ===");
+        log.info("ArtistId: {}, Genres: {}", artistId, genres);
+
+        // Validar que los géneros existen
+        if (genres != null) {
+            for (String genre : genres) {
+                try {
+                    MusicGenre.valueOf(genre);
+                } catch (IllegalArgumentException e) {
+                    throw new Exception("Invalid genre: " + genre);
+                }
+            }
+        }
+
+        return artistService.updateLookingForGenres(artistId, genres);
+    }
 }
