@@ -45,4 +45,18 @@ public interface ArtistRepository extends JpaRepository<Artist, Long> {
     // ✅ Consulta nativa para filtrar por géneros buscados
     @Query(value = "SELECT * FROM artists a WHERE a.is_looking_for_band = true AND :genre = ANY(a.looking_for_genres)", nativeQuery = true)
     List<Artist> findByLookingForBandAndGenre(@Param("genre") String genre);
+
+    @Query("SELECT DISTINCT a FROM Artist a " +
+            "LEFT JOIN a.instruments i " +
+            "WHERE a.isLookingForBand = true " +
+            "AND (:genre IS NULL OR a.genre = :genre) " +
+            "AND (:instrumentIds IS NULL OR i.id IN :instrumentIds) " +
+            "AND (:country IS NULL OR :country = '' OR LOWER(a.country) = LOWER(:country)) " +
+            "AND (:city IS NULL OR :city = '' OR LOWER(a.city) = LOWER(:city))")
+    List<Artist> findWithFilters(
+            @Param("genre") String genre,
+            @Param("instrumentIds") List<Long> instrumentIds,
+            @Param("country") String country,
+            @Param("city") String city
+    );
 }

@@ -362,73 +362,73 @@ public class ArtistController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllArtists() {
-        log.info("=== GET /api/artists ===");
-        try {
-            // Obtener el usuario actual
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Long currentUserId = null;
-
-            if (auth != null && auth.getPrincipal() instanceof UserDetails) {
-                String email = ((UserDetails) auth.getPrincipal()).getUsername();
-                User currentUser = userService.findUserByEmail(email);
-                if (currentUser != null) {
-                    currentUserId = currentUser.getId();
-                }
-            }
-
-            List<Artist> artists = artistService.getAllArtists();
-
-            // Filtrar para excluir al artista del usuario logueado
-            List<Map<String, Object>> response = new ArrayList<>();
-            for (Artist artist : artists) {
-                // Saltar al artista del usuario actual
-                if (currentUserId != null && artist.getUser() != null &&
-                        artist.getUser().getId().equals(currentUserId)) {
-                    continue;
-                }
-
-                Map<String, Object> map = new HashMap<>();
-                map.put("id", artist.getId());
-                map.put("stageName", artist.getStageName());
-                map.put("genre", artist.getGenre() != null ? artist.getGenre().name() : "");
-                map.put("city", artist.getCity());
-                map.put("country", artist.getCountry());
-                map.put("lookingForBand", artist.isLookingForBand());
-                map.put("lookingForGenres", artist.getLookingForGenres());
-                map.put("profileImageUrl", artist.getProfileImageUrl());
-                map.put("verified", artist.isVerified());
-
-                // Instrumentos como lista simple
-                List<Map<String, Object>> instruments = new ArrayList<>();
-                if (artist.getInstruments() != null) {
-                    for (Instrument instrument : artist.getInstruments()) {
-                        Map<String, Object> inst = new HashMap<>();
-                        inst.put("id", instrument.getId());
-                        inst.put("name", instrument.getName());
-                        instruments.add(inst);
-                    }
-                }
-                map.put("instruments", instruments);
-                response.add(map);
-            }
-
-            // Filtrar solo los que buscan banda
-            List<Map<String, Object>> lookingForBand = response.stream()
-                    .filter(artist -> Boolean.TRUE.equals(artist.get("lookingForBand")))
-                    .collect(Collectors.toList());
-
-            log.info("Artistas que buscan banda (excluyendo al actual): {}", lookingForBand.size());
-
-            return ResponseEntity.ok(lookingForBand);
-
-        } catch (Exception e) {
-            log.error("Error al obtener artistas: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
-        }
-    }
+//    @GetMapping
+//    public ResponseEntity<?> getAllArtists() {
+//        log.info("=== GET /api/artists ===");
+//        try {
+//            // Obtener el usuario actual
+//            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//            Long currentUserId = null;
+//
+//            if (auth != null && auth.getPrincipal() instanceof UserDetails) {
+//                String email = ((UserDetails) auth.getPrincipal()).getUsername();
+//                User currentUser = userService.findUserByEmail(email);
+//                if (currentUser != null) {
+//                    currentUserId = currentUser.getId();
+//                }
+//            }
+//
+//            List<Artist> artists = artistService.getAllArtists();
+//
+//            // Filtrar para excluir al artista del usuario logueado
+//            List<Map<String, Object>> response = new ArrayList<>();
+//            for (Artist artist : artists) {
+//                // Saltar al artista del usuario actual
+//                if (currentUserId != null && artist.getUser() != null &&
+//                        artist.getUser().getId().equals(currentUserId)) {
+//                    continue;
+//                }
+//
+//                Map<String, Object> map = new HashMap<>();
+//                map.put("id", artist.getId());
+//                map.put("stageName", artist.getStageName());
+//                map.put("genre", artist.getGenre() != null ? artist.getGenre().name() : "");
+//                map.put("city", artist.getCity());
+//                map.put("country", artist.getCountry());
+//                map.put("lookingForBand", artist.isLookingForBand());
+//                map.put("lookingForGenres", artist.getLookingForGenres());
+//                map.put("profileImageUrl", artist.getProfileImageUrl());
+//                map.put("verified", artist.isVerified());
+//
+//                // Instrumentos como lista simple
+//                List<Map<String, Object>> instruments = new ArrayList<>();
+//                if (artist.getInstruments() != null) {
+//                    for (Instrument instrument : artist.getInstruments()) {
+//                        Map<String, Object> inst = new HashMap<>();
+//                        inst.put("id", instrument.getId());
+//                        inst.put("name", instrument.getName());
+//                        instruments.add(inst);
+//                    }
+//                }
+//                map.put("instruments", instruments);
+//                response.add(map);
+//            }
+//
+//            // Filtrar solo los que buscan banda
+//            List<Map<String, Object>> lookingForBand = response.stream()
+//                    .filter(artist -> Boolean.TRUE.equals(artist.get("lookingForBand")))
+//                    .collect(Collectors.toList());
+//
+//            log.info("Artistas que buscan banda (excluyendo al actual): {}", lookingForBand.size());
+//
+//            return ResponseEntity.ok(lookingForBand);
+//
+//        } catch (Exception e) {
+//            log.error("Error al obtener artistas: {}", e.getMessage(), e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("error", e.getMessage()));
+//        }
+//    }
 
     // ========== LOOKING FOR INSTRUMENTS - ENDPOINTS ==========
 
@@ -662,6 +662,83 @@ public class ArtistController {
 
         } catch (Exception e) {
             log.error("Error: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllArtists(
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) List<Long> instrumentIds,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city
+    ) {
+        log.info("=== GET /api/artists ===");
+        log.info("Filters - genre: {}, instrumentIds: {}, country: {}, city: {}",
+                genre, instrumentIds, country, city);
+
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Long currentUserId = null;
+
+            if (auth != null && auth.getPrincipal() instanceof UserDetails) {
+                String email = ((UserDetails) auth.getPrincipal()).getUsername();
+                User currentUser = userService.findUserByEmail(email);
+                if (currentUser != null) {
+                    currentUserId = currentUser.getId();
+                }
+            }
+
+            // Aplicar filtros combinados
+            List<Artist> artists = artistService.findArtistsWithFilters(
+                    genre, instrumentIds, country, city
+            );
+
+            // Filtrar para excluir al artista del usuario logueado
+            List<Map<String, Object>> response = new ArrayList<>();
+            for (Artist artist : artists) {
+                if (currentUserId != null && artist.getUser() != null &&
+                        artist.getUser().getId().equals(currentUserId)) {
+                    continue;
+                }
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", artist.getId());
+                map.put("stageName", artist.getStageName());
+                map.put("genre", artist.getGenre() != null ? artist.getGenre().name() : "");
+                map.put("city", artist.getCity());
+                map.put("country", artist.getCountry());
+                map.put("lookingForBand", artist.isLookingForBand());
+                map.put("lookingForGenres", artist.getLookingForGenres());
+                map.put("profileImageUrl", artist.getProfileImageUrl());
+                map.put("verified", artist.isVerified());
+
+                // Instrumentos como lista simple
+                List<Map<String, Object>> instruments = new ArrayList<>();
+                if (artist.getInstruments() != null) {
+                    for (Instrument instrument : artist.getInstruments()) {
+                        Map<String, Object> inst = new HashMap<>();
+                        inst.put("id", instrument.getId());
+                        inst.put("name", instrument.getName());
+                        instruments.add(inst);
+                    }
+                }
+                map.put("instruments", instruments);
+                response.add(map);
+            }
+
+            // Filtrar solo los que buscan banda
+            List<Map<String, Object>> lookingForBand = response.stream()
+                    .filter(artist -> Boolean.TRUE.equals(artist.get("lookingForBand")))
+                    .collect(Collectors.toList());
+
+            log.info("Artistas que buscan banda: {}", lookingForBand.size());
+
+            return ResponseEntity.ok(lookingForBand);
+
+        } catch (Exception e) {
+            log.error("Error al obtener artistas: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }
