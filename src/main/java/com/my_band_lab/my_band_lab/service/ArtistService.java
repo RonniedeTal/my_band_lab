@@ -53,4 +53,6 @@ public interface ArtistService {
     Artist updateLookingForGenres(Long artistId, List<String> genres) throws Exception;
     List<String> getLookingForGenres(Long artistId) throws Exception;
 
+    List<Artist> findArtistsWithFilters(String genre, List<Long> instrumentIds, String country, String city) throws Exception;
+
 }

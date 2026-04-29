@@ -158,7 +158,7 @@ type Query {
     artistById(id: ID!): Artist
     artistByUserId(userId: ID!): Artist
     artistsByGenre(genre: MusicGenre!): [Artist!]!
-    artistsLookingForBand: [Artist!]!
+#    artistsLookingForBand: [Artist!]!
 
     # MusicGroup queries
     musicGroups: [MusicGroup!]!
@@ -347,6 +347,12 @@ extend type Query {
     searchPublicPlaylists(query: String!, page: Int = 0, size: Int = 10): PlaylistPageResponse!
     playlistById(id: ID!): Playlist
     playlistSongs(playlistId: ID!): [PlaylistSong!]!
+    artistsLookingForBand(
+        genre: MusicGenre,
+        instrumentIds: [ID!],
+        country: String,
+        city: String
+    ): [Artist!]!
 }
 
 extend type Mutation {

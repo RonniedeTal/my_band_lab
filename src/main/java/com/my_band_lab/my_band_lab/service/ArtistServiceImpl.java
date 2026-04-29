@@ -497,5 +497,13 @@ public class ArtistServiceImpl implements ArtistService {
         return artist.getLookingForGenres() != null ? artist.getLookingForGenres() : new ArrayList<>();
     }
 
+    @Override
+    public List<Artist> findArtistsWithFilters(String genre, List<Long> instrumentIds, String country, String city) throws Exception {
+        log.info("Buscando artistas con filtros - genre: {}, instrumentIds: {}, country: {}, city: {}",
+                genre, instrumentIds, country, city);
+
+        return artistRepository.findWithFilters(genre, instrumentIds, country, city);
+    }
+
 }
 

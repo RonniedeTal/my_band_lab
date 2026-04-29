@@ -14,9 +14,14 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Controller
 public class UserGraphQLController {
@@ -37,6 +42,9 @@ public class UserGraphQLController {
 
     @Autowired
     private InstrumentRepository instrumentRepository;
+
+    @Autowired
+    private InstrumentService instrumentService;
 
     // User Queries
     @QueryMapping
@@ -228,8 +236,8 @@ public class UserGraphQLController {
     }
     // ==================== QUERIES PARA INSTRUMENTOS ====================
 
-    @Autowired
-    private InstrumentService instrumentService;
+//    @Autowired
+//    private InstrumentService instrumentService;
 
     @QueryMapping
     public List<Instrument> instruments() throws Exception {
@@ -292,17 +300,52 @@ public class UserGraphQLController {
     }
 
     @QueryMapping
-    public List<Artist> artistsLookingForBand() {
+    public List<Artist> artistsLookingForBand(
+            @Argument String genre,
+            @Argument List<Long> instrumentIds,
+            @Argument String country,
+            @Argument String city
+    ) {
         log.info("=== GraphQL Query: artistsLookingForBand ===");
+        log.info("Filters - genre: {}, instrumentIds: {}, country: {}, city: {}",
+                genre, instrumentIds, country, city);
+
         try {
-            List<Artist> artists = artistService.getArtistsLookingForBand();
-            log.info("Artistas encontrados: {}", artists.size());
-            // Devolver lista vacía en lugar de null
-            return artists != null ? artists : new ArrayList<>();
+            // 👇 Hacer la variable final o efectivamente final
+            final Long currentUserId = getCurrentUserId(); // Extraer a un método
+
+            List<Artist> artists = artistService.findArtistsWithFilters(genre, instrumentIds, country, city);
+
+            List<Artist> filteredArtists = artists.stream()
+                    .filter(artist -> currentUserId == null ||
+                            artist.getUser() == null ||
+                            !artist.getUser().getId().equals(currentUserId))
+                    .collect(Collectors.toList());
+
+            log.info("Artistas encontrados: {}", filteredArtists.size());
+            return filteredArtists;
+
         } catch (Exception e) {
-            log.error("Error en artistsLookingForBand: {}", e.getMessage());
-            return new ArrayList<>(); // Nunca devolver null
+            log.error("Error en artistsLookingForBand: {}", e.getMessage(), e);
+            return new ArrayList<>();
         }
+    }
+
+    // Método auxiliar para obtener el userId actual
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserDetails) {
+            try {
+                String email = ((UserDetails) auth.getPrincipal()).getUsername();
+                User user = userService.findUserByEmail(email);
+                if (user != null) {
+                    return user.getId();
+                }
+            } catch (Exception e) {
+                log.error("Error getting current user: {}", e.getMessage());
+            }
+        }
+        return null;
     }
 
     // ========== LOOKING FOR INSTRUMENTS - GRAPHQL ==========
@@ -393,4 +436,6 @@ public class UserGraphQLController {
 
         return artistService.updateLookingForGenres(artistId, genres);
     }
+
+
 }
