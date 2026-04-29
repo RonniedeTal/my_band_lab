@@ -743,4 +743,6 @@ public class ArtistController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
+
 }
