@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -85,5 +87,19 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     public Page<Playlist> searchPublicPlaylists(String query, Pageable pageable) {
         return playlistRepository.searchPublicPlaylists(query, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Playlist> getPublicPlaylistsByArtistId(Long artistId) {
+        log.info("🔍 Buscando playlists públicas para artista: {}", artistId);
+        return playlistRepository.findPublicPlaylistsByArtistId(artistId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Playlist> getPlaylistsByArtistId(Long artistId, Long userId) {
+        log.info("🔍 Buscando playlists (públicas + propias) para artista: {}, usuario: {}", artistId, userId);
+        return playlistRepository.findPlaylistsByArtistId(artistId, userId);
     }
 }

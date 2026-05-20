@@ -1,11 +1,13 @@
 package com.my_band_lab.my_band_lab.controller;
 
 import com.my_band_lab.my_band_lab.dto.ImageUploadResponse;
+import com.my_band_lab.my_band_lab.dto.PlaylistByArtistResponse;
 import com.my_band_lab.my_band_lab.entity.Playlist;
 import com.my_band_lab.my_band_lab.entity.PlaylistSong;
 import com.my_band_lab.my_band_lab.entity.User;
 import com.my_band_lab.my_band_lab.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/playlists")
 @RequiredArgsConstructor
@@ -146,6 +149,46 @@ public class PlaylistController {
         Page<Playlist> playlists = playlistService.searchPublicPlaylists(q, pageable);
 
         return ResponseEntity.ok(playlists);
+    }
+
+    @GetMapping("/by-artist/{artistId}")
+    public ResponseEntity<List<PlaylistByArtistResponse>> getPlaylistsByArtist(
+            @PathVariable Long artistId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        List<Playlist> playlists;
+
+        if (userDetails != null) {
+            try {
+                User currentUser = userService.findUserByEmail(userDetails.getUsername());
+                playlists = playlistService.getPlaylistsByArtistId(artistId, currentUser.getId());
+            } catch (Exception e) {
+                playlists = playlistService.getPublicPlaylistsByArtistId(artistId);
+            }
+        } else {
+            playlists = playlistService.getPublicPlaylistsByArtistId(artistId);
+        }
+
+        log.info("📀 playlists encontradas para artista {}: {}", artistId, playlists.size());
+
+        List<PlaylistByArtistResponse> response = playlists.stream()
+                .map(p -> PlaylistByArtistResponse.builder()
+                        .id(p.getId())
+                        .title(p.getTitle())
+                        .description(p.getDescription())
+                        .coverImageUrl(p.getCoverImageUrl())
+                        .isPublic(p.isPublic())
+                        .user(PlaylistByArtistResponse.UserSimple.builder()
+                                .id(p.getUser().getId())
+                                .name(p.getUser().getName())
+                                .surname(p.getUser().getSurname())
+                                .build())
+                        .createdAt(p.getCreatedAt())
+                        .updatedAt(p.getUpdatedAt())
+                        .build())
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
     // ========== Gestión de canciones en playlists ==========

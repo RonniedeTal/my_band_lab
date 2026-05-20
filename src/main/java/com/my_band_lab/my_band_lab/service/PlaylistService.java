@@ -4,6 +4,8 @@ import com.my_band_lab.my_band_lab.entity.Playlist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface PlaylistService {
 
     Playlist createPlaylist(Long userId, String title, String description, String coverImageUrl, boolean isPublic);
@@ -19,4 +21,8 @@ public interface PlaylistService {
     Page<Playlist> getPublicPlaylists(Pageable pageable);
 
     Page<Playlist> searchPublicPlaylists(String query, Pageable pageable);
+
+    List<Playlist> getPublicPlaylistsByArtistId(Long artistId);
+
+    List<Playlist> getPlaylistsByArtistId(Long artistId, Long userId);
 }
