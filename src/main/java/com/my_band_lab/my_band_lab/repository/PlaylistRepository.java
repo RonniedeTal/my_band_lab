@@ -24,4 +24,16 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
 
     @Query("SELECT p FROM Playlist p WHERE p.user.id = :userId AND (p.isPublic = true OR p.user.id = :currentUserId)")
     List<Playlist> findAccessiblePlaylists(@Param("userId") Long userId, @Param("currentUserId") Long currentUserId);
+
+    @Query("SELECT DISTINCT p FROM Playlist p " +
+           "JOIN p.playlistSongs ps " +
+           "WHERE ps.song.artist.id = :artistId " +
+           "AND p.isPublic = true")
+    List<Playlist> findPublicPlaylistsByArtistId(@Param("artistId") Long artistId);
+
+    @Query("SELECT DISTINCT p FROM Playlist p " +
+           "JOIN p.playlistSongs ps " +
+           "WHERE ps.song.artist.id = :artistId " +
+           "AND (p.isPublic = true OR p.user.id = :userId)")
+    List<Playlist> findPlaylistsByArtistId(@Param("artistId") Long artistId, @Param("userId") Long userId);
 }

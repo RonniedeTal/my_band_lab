@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
-@Service
+@Service("audioUploadServiceImpl")
 @RequiredArgsConstructor
 public class AudioUploadServiceImpl implements AudioUploadService {
 

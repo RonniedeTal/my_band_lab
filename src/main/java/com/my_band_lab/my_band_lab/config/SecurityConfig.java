@@ -45,6 +45,10 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/artist/looking-for-band/**").authenticated()
                         .requestMatchers("/api/countries/**").permitAll()
+                        .requestMatchers("/api/playlists/public").permitAll()
+                        .requestMatchers("/api/playlists/by-artist/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/app/**").permitAll()
 
 
 //                        .requestMatchers("/api/countries/**").permitAll()
